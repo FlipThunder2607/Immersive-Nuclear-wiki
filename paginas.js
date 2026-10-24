@@ -243,7 +243,6 @@ const pages=[
 ];
 return {pages,
   home:{lead:'Um ecossistema nuclear completo no estilo do Immersive Engineering: do minério de urânio ao combustível, do reator à geração de energia, com máquinas multibloco animadas, processos por lotes e automação feita pelo jogador.',
-    hero:[img('unidade-de-separacao-quimica/previas-modelo/bb-frente-direita.png','Unidade de Separação Química'),ph('Vídeo ou print: uma máquina funcionando no jogo')],
     features:[['Máquinas multibloco','Montadas com blocos do IE e formadas com o martelo, com modelo 3D, sons, animação e interface própria.'],
       ['Processos por lotes','Encher, reagir, decantar, filtrar: cada etapa aparece na interface e no mundo.'],
       ['Subprodutos reaproveitados','Efluentes, rejeitos e lamas têm destino: metais recuperados, água, concreto.'],

@@ -142,3 +142,17 @@ main #in-progress{margin:12px 0 8px}
   .infobox{float:none;width:auto;margin:0 0 14px}
 }
 @media(prefers-reduced-motion:reduce){.fl{animation:none}}
+/* Progress by topic (home) */
+h4.sub-sec{color:var(--soft);margin:14px 0 6px;font-size:12px;font-weight:bold;text-transform:uppercase;letter-spacing:.04em}
+.per-topic{display:grid;gap:4px;max-width:780px}
+.per-topic a{display:grid;grid-template-columns:190px 1fr 42px;align-items:center;gap:10px;color:var(--ink);text-decoration:none;font-size:12px;padding:2px 4px}
+.per-topic a:hover{background:var(--hover)}
+.bar.mini{height:8px;margin:0;border-width:1px}
+.pt-pct{text-align:right;color:var(--dim)}
+/* Language switch (top right corner) */
+.lang{position:fixed;top:10px;right:14px;z-index:50;display:flex;border:2px solid var(--line);box-shadow:inset 1px 1px #5c5e63,0 2px 0 #0006;background:var(--card)}
+.lang button{font:bold 11px Verdana,sans-serif;color:var(--soft);background:none;border:0;padding:5px 9px;cursor:pointer}
+.lang button+button{border-left:2px solid var(--line)}
+.lang button.on{color:#1a1b1d;background:var(--gold)}
+.lang button:not(.on):hover{background:var(--hover);color:var(--ink)}
+@media (max-width:640px){.per-topic a{grid-template-columns:110px 1fr 36px}.lang{top:8px;right:8px}}
