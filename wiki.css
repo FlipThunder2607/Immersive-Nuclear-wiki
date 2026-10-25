@@ -45,7 +45,7 @@ h3.sec{color:var(--sec);margin:24px 0 8px;font-size:16px}
 .lead{max-width:780px;font-size:15px;color:#e4e2da}
 p.body{max-width:780px;color:#d8d7d1}
 .tag{font-size:9px;padding:1px 5px;white-space:nowrap;background:var(--well);color:var(--gold);border:1px solid #55575c;font-weight:normal;text-shadow:none;font-family:Verdana,sans-serif}
-.tag.tg-em-producao{color:var(--st-no-jogo)}.tag.tg-em-aberto{color:var(--st-em-aberto)}.tag.tg-previsto{color:#b9bcc2}
+.tag.tg-em-producao{color:var(--st-no-jogo)}.tag.tg-em-aberto{color:var(--st-em-aberto)}.tag.tg-previsto{color:#b9bcc2}.tag.tg-em-desenvolvimento{color:var(--st-definido)}
 .chip{font-size:10px;padding:1px 6px;display:inline-block;margin-top:3px;color:#111;background:var(--c)}
 .st-no-jogo{--c:var(--st-no-jogo)}.st-registrado{--c:var(--st-registrado)}.st-definido{--c:var(--st-definido)}.st-previsto{--c:var(--st-previsto)}.st-em-aberto{--c:var(--st-em-aberto)}.st-ie,.st-vanilla{--c:var(--st-ie)}
 /* home */

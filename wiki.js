@@ -149,7 +149,7 @@ function langSwitch(){let box=document.querySelector('.lang');
 // ---------- side menu ----------
 // Grouped by 'group' (top-level topics), each topic with its one-line 'desc'; inside a topic the pages are grouped by
 // 'section'. A coloured square tells the status, an icon the kind of page (machine, overview). The current branch opens.
-const TAG_STATUS={'em produção':'No jogo','previsto':'Previsto','em aberto':'Em aberto'},opened=new Set();
+const TAG_STATUS={'em produção':'No jogo','em desenvolvimento':'Definido','previsto':'Previsto','em aberto':'Em aberto'},opened=new Set();
 const pageStatus=p=>p.machine?byId.get(p.machine).status:p.tag?TAG_STATUS[p.tag]:p.parent?pageStatus(pageById.get(p.parent)):null;
 const dot=p=>{const st=pageStatus(p);return st?`<span class="dot st-${slug(st)}" title="${esc(T(st))}"></span>`:'';};
 const label=p=>esc(p.short||p.title);
