@@ -115,7 +115,7 @@ const pages=[
   extraIds:['plates','deposit']},
 {id:'maq4',section:'Máquinas',parent:'purificacao',title:'Precipitação',machine:'m4',
   lead:'Faz o urânio dissolvido virar sólido e separa esse sólido do líquido. A solução enche um tanque agitado, o agente precipitante é dosado e a hélice mistura; a lama desce do fundo cônico para uma rosca inclinada, que sobe o sólido até a calha e deixa o líquido escorrer de volta como efluente.',
-  facts:[['Estrutura','5 × 7 × 5, 94 blocos'],['Desde','0.1.4-alpha (em teste)'],['Tanque','12.000 mB por lote'],['Lote','6 agentes → 24 concentrados úmidos + 9.000 mB de efluente']],
+  facts:[['Estrutura','5 × 7 × 5, 94 blocos'],['Desde','0.1.4-alpha'],['Tanque','12.000 mB por lote'],['Lote','6 agentes → 24 concentrados úmidos + 9.000 mB de efluente']],
   extraIds:['agent','umido']},
 {id:'maq5',section:'Máquinas',parent:'purificacao',title:'Secador industrial',machine:'m5',tag:'previsto',
   lead:'Secará o concentrado úmido e entregará o yellowcake, coletando o condensado de processo.',
