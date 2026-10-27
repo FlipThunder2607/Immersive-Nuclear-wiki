@@ -118,8 +118,8 @@ const pages=[
   facts:[['Estrutura','5 × 7 × 5, 93 blocos'],['Desde','0.1.4-alpha'],['Tanque','12.000 mB por lote'],['Lote','6 agentes → 24 concentrados úmidos + 9.000 mB de efluente']],
   extraIds:['agent','umido']},
 {id:'maq5',section:'Máquinas',parent:'purificacao',title:'Secador industrial',machine:'m5',
-  lead:'Tira a água do concentrado úmido e entrega o yellowcake, o fim da primeira linha. O concentrado entra pela válvula rotativa numa câmara horizontal; as resistências aquecem a câmara a 140 °C e as pás reviram o concentrado enquanto o vapor sobe para o condensador, que devolve a água como condensado de processo.',
-  facts:[['Estrutura','4 × 7 × 3, 63 blocos'],['Desde','0.1.5-alpha'],['Lote','24 concentrados úmidos → 16 yellowcakes + 2.000 mB de condensado'],['Tempo e energia','90 s, 76.800 IF']],
+  lead:'Tira a água do concentrado úmido e entrega o yellowcake, o fim da primeira linha. O concentrado entra pela válvula rotativa numa câmara horizontal; as resistências aquecem a câmara a 140 °C e as pás reviram o concentrado enquanto o vapor sobe por um lavador de gases, que devolve o pó fino de yellowcake, e pelo condensador, que devolve a água como condensado de processo.',
+  facts:[['Estrutura','4 × 7 × 3, 63 blocos'],['Desde','0.1.5-alpha'],['Lote','24 concentrados úmidos → 16 yellowcakes + 2.000 mB de condensado'],['Tempo e energia','90 s, 76.800 IF'],['Lavador de gases','+1 yellowcake a cada 4 lotes'],['Condensado','volta ao processamento químico como licor reciclado']],
   extraIds:['umido','yellow','condensate']},
 
 // ---------- Planned topics ----------
