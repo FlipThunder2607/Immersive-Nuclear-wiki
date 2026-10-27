@@ -12,8 +12,9 @@ const GUIDE={title:'Do minério ao concentrado',intro:'Explore os processos do I
 const textures=new Map();
 function loadModel(id){if(!textures.has(id)){const m=IN_MODELS[id];textures.set(id,Promise.all(m.textures.map(src=>new Promise(resolve=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=()=>resolve(null);im.src=src;}))));}return textures.get(id);}
 function renderModel(canvas,id,yaw=-.78){const model=IN_MODELS[id];if(!model)return;loadModel(id).then(images=>{if(!canvas.isConnected)return;const ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height;ctx.clearRect(0,0,W,H);ctx.imageSmoothingEnabled=false;
-// Our machines come from Blockbench with the front on -Z: turned half round so they face the viewer, like IE's
-if((model.source||'').endsWith('.bbmodel'))yaw+=Math.PI;
+// Our machines come from Blockbench with the front on -Z: turned half round so they face the viewer, like IE's.
+// The Metal Extractor was modelled facing the other way (front on +Z), so it already does.
+if((model.source||'').endsWith('.bbmodel')&&id!=='m35')yaw+=Math.PI;
 const cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(.48),sp=Math.sin(.48);
 const proj=p=>{const x=p[0]*cy-p[2]*sy,z=p[0]*sy+p[2]*cy;return [x,-p[1]*cp+z*sp,p[1]*sp+z*cp];};
 let xmin=Infinity,xmax=-Infinity,ymin=Infinity,ymax=-Infinity;
