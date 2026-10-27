@@ -36,6 +36,7 @@ ui:{
   'Clique no nó para fixar e interagir.':'Click the node to pin it and interact.',
   '0.1.4-alpha (Precipitação)':'0.1.4-alpha (Precipitation)',
   '0.1.5-alpha (Secador industrial)':'0.1.5-alpha (Industrial dryer)',
+  '0.1.6-alpha (Tambor de concentrado)':'0.1.6-alpha (Concentrate drum)',
   'Prancha conceitual da linha; ainda sem modelo 3D desta máquina.':'Concept board of the line; no 3D model of this machine yet.',
   'Placa de aço':'Steel plate','Placa de chumbo-prata':'Lead-silver plate','Placa revestida de electrum':'Electrum-coated plate',
   '1 filtro':'1 filter','1 placa de aço':'1 steel plate','1 placa de chumbo-prata':'1 lead-silver plate','1 placa de electrum':'1 electrum-coated plate',
@@ -73,9 +74,9 @@ pages:{
   maq35:{title:'Metal extractor',lead:'Recovers the metals dissolved in the effluent by electrolysis. Six electrode plates dip into the vat, take the deposit and rise for the scraper to clean them over the tray.',
     facts:[['Structure','4 layers, 44 blocks'],['Since','0.1.3-alpha'],['Vat','12,000 mB per batch'],['Plates','6: steel, lead-silver or electrum']]},
   maq4:{title:'Precipitation',lead:'Turns the dissolved uranium into a solid and separates that solid from the liquid. The solution fills a stirred tank, the precipitating agent is dosed and the impeller mixes; the slurry drops from the conical bottom into an inclined screw, which lifts the solid up to the chute and lets the liquid run back down as effluent.',
-    facts:[['Structure','5 × 7 × 5, 94 blocks'],['Since','0.1.4-alpha'],['Tank','12,000 mB per batch'],['Batch','6 agents → 24 wet concentrate + 9,000 mB of effluent']]},
-  maq5:{title:'Industrial dryer',lead:'Will dry the wet concentrate and deliver the yellowcake, collecting the process condensate.',
-    facts:[['Planned look','3 × 5 × 3: insulated horizontal chamber'],['Version','after the precipitation']]},
+    facts:[['Structure','5 × 7 × 5, 93 blocks'],['Since','0.1.4-alpha'],['Tank','12,000 mB per batch'],['Batch','6 agents → 24 wet concentrate + 9,000 mB of effluent']]},
+  maq5:{title:'Industrial dryer',lead:'Drives the water out of the wet concentrate and delivers the yellowcake, the end of the first line. The concentrate goes in through the rotary valve into a horizontal chamber; the heaters bring the chamber to 140 °C and the paddles turn the concentrate over while the vapour rises to the condenser, which gives the water back as process condensate.',
+    facts:[['Structure','4 × 7 × 3, 63 blocks'],['Since','0.1.5-alpha'],['Batch','24 wet concentrate → 16 yellowcake + 2,000 mB of condensate'],['Time and energy','90 s, 76,800 IF']]},
   enriquecimento:{title:'Enrichment',desc:'Conversion and enrichment',
     lead:'The second line of the mod: the yellowcake becomes uranium hexafluoride, a compound that turns into gas, and centrifuges separate the part rich in uranium-235. Two machines: the Conversion Unit and the Enrichment Unit. The by-products and where they go follow the real industry; quantities and recipes are still to be defined.',
     text:[['The fluorine loop','The conversion uses hydrofluoric acid. The deconversion of the tails and the reconversion of the fuel give that acid back, and the fluorine left in the water becomes calcium fluoride, which can be turned into acid again.'],
@@ -136,10 +137,10 @@ nodes:{
   bruta:['Crude solution','Liquid output of the filter press → chemical separation.','The uranium is still dissolved in the liquid.'],
   m3:['Chemical separation','Crude solution + stripping solution (+ solvent top-up) → purified solution + chemical effluent.','Two mixer-settlers. Extraction: 10,000 mB of crude + 6,000 of solvent. Stripping: 6,000 of loaded solvent + 5,000 of stripping solution. 1 min of settling per batch. 18,000 mB surge reservoir: the port only tops it up to 6,000; 500 mB of solvent lost per batch.'],
   pura:['Purified solution','Output of the chemical separation → precipitation.','Liquid with chemically purified uranium; not enriched.'],
-  m4:['Precipitation','Batch: 12,000 mB of purified solution + 6 precipitating agents → 24 wet concentrate + 9,000 mB of chemical effluent (25,600 IF).','Stirred tank: the solution fills the tank → the agent is dosed and the agitator mixes (20 s, 48 IF/t) → the slurry drops from the conical bottom into the inclined screw, which lifts the solid up to the chute and lets the liquid run back down as effluent (10 s, 32 IF/t). Animated impeller and liquid.'],
+  m4:['Precipitation','Batch: 12,000 mB of purified solution + 6 precipitating agents → 24 wet concentrate + 9,000 mB of chemical effluent (76,800 IF).','Stirred tank: the solution fills the tank → the agent is dosed and the agitator mixes (60 s, 48 IF/t) → the slurry drops from the conical bottom into the inclined screw, which lifts the solid up to the chute and lets the liquid run back down as effluent (30 s, 32 IF/t). Animated impeller and liquid.'],
   umido:['Wet concentrate','Made in the precipitation (24 per batch) → industrial dryer.','Concentrate still holding moisture.'],
-  m5:['Industrial dryer','Wet concentrate + energy → yellowcake + process condensate.','Drying chamber that collects the condensate. Times, energy and proportions to be defined.'],
-  yellow:['Yellowcake','Product of the industrial dryer.','End of the first line: uranium concentrate, not enriched fuel.'],
+  m5:['Industrial dryer','Batch: 24 wet concentrate → 16 yellowcake + 2,000 mB of process condensate (90 s, 76,800 IF).','Horizontal chamber with paddles and heaters: load through the rotary valve (4 s) → heat up to 140 °C (10 s) → dry while the paddles turn the concentrate over and the vapour goes to the condenser (60 s) → cool and discharge (16 s). Heaters glow and steam rises on the model.'],
+  yellow:['Yellowcake','Comes out of the industrial dryer: 16 per batch.','End of the first line: uranium concentrate, not enriched fuel.'],
   drum:['Concentrate drum','Crafting recipe to be defined.','Planned block: holds 16 stacks, yellowcake only.'],
   sulfur:['Sulfur • IE','From the IE Crusher.','Immersive Petroleum offers another source.'],
   nitrate:['Saltpeter • IE','Saltpeter (dustSaltpeter), from the IE Crusher.','Used in the reagent, the precipitating agent, the solvent and the stripping solution.'],
@@ -173,7 +174,7 @@ nodes:{
   concrete:['Concrete • IE','IE Mixer: 500 mB of water + 2 sand + 1 cake + 1 gravel → 500 mB of concrete (3,200 IF).','The cake takes the place of the clay in IE\'s recipe. Model: IE\'s Mixer.'],
   reuse:['Recovered water','Sludge filtration → plain water (800 mB per 1,000 mB of sludge).','Back to the chemical processing, the Mixer or anything that uses water.'],
   plates:['Electrode plates','Steel: 2 steel rods + copper plate + 2 steel plates. Lead-silver: steel plate + 2 lead plates + silver plate. Electrum: lead-silver plate + 3 electrum plates.','Six per extractor, can be mixed. Life 32 / 64 / 128 batches; deposit 6 / 7 / 8 per batch; recovery energy 100% / 90% / 75%.'],
-  condensate:['Process condensate','Output of the industrial dryer.','Destination not defined yet.']
+  condensate:['Process condensate','Comes out of the industrial dryer: 2,000 mB per batch.','Not clean water; destination not defined yet (store it in tanks for now).']
 },
 plan:{
   enriquecimento:{

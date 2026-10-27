@@ -49,7 +49,7 @@ const HZ=(()=>{const src=id=>IN_GRAPH.nodes.find(n=>n.id===id)||{},nodes=[],edge
       subs:[{id:'p_dry',name:'Pó seco',glyph:'∴',recipe:'Manusear pó seco.',info:'Seco solta pó; úmido quase não. Pó radioativo soma dose interna.',
           leaves:[['yellow','Yellowcake',3,'No jogo'],['u','Pó de urânio',2,'Definido'],['lime','Cal',2,'Definido']]},
         {id:'p_mach',name:'Máquinas que geram pó',glyph:'⚙',recipe:'O secador aberto ou quebrado; o Triturador do IE moendo minério de urânio.',info:'O secador é a etapa perigosa para a respiração.',
-          leaves:[['m5','Secador industrial',null,'Previsto'],['crushRes','Triturador do IE',null,'Definido']]},
+          leaves:[['m5','Secador industrial',null,'Definido'],['crushRes','Triturador do IE',null,'Definido']]},
         {id:'p_cloud',name:'Nuvem de pó',glyph:'≋',recipe:'Derramar pó seco, ou uma explosão perto de material em pó.',info:'Deixa a área empoeirada por um tempo.',leaves:[]}]}]);
   half(1620,120,[
     {id:'qui',name:'Química',glyph:'⚗',recipe:'Contato com substância agressiva. Efeito na hora; some quando o contato acaba.',info:'Exposição: contato com líquido (vazamento, tanque quebrado), respingo ao quebrar uma máquina com fluido, vapor perto de vazamentos ou tanques abertos. Sai afastando-se e lavando-se com água. Postura: não encostar.',
@@ -69,7 +69,7 @@ const HZ=(()=>{const src=id=>IN_GRAPH.nodes.find(n=>n.id===id)||{},nodes=[],edge
         {id:'f_press',name:'Pressão',glyph:'P',recipe:'Passado o limite (ideia para depois), a máquina rompe e espalha o conteúdo.',info:'',
           leaves:[['m2','Filtro-prensa',null,'Definido'],[null,'Reator',null,'Previsto'],[null,'Hexafluoreto',2,'Previsto']]},
         {id:'f_heat',name:'Temperatura',glyph:'°C',recipe:'Encostar em superfície quente causa queimadura.',info:'',
-          leaves:[['m5','Secador industrial',null,'Previsto'],[null,'Reator e linhas de vapor',null,'Previsto'],[null,'Combustível usado',1,'Previsto']]},
+          leaves:[['m5','Secador industrial',null,'Definido'],[null,'Reator e linhas de vapor',null,'Previsto'],[null,'Combustível usado',1,'Previsto']]},
         {id:'f_boom',name:'Explosão',glyph:'✸',recipe:'Combinações dos de cima: destrói blocos e espalha os outros tipos (líquido, pó, radiação).',info:'',leaves:[]}]}]);
   // Radioactive dust adds internal dose: from the dry-dust row up to the internal row, between the bus and the subtypes
   const dry=nodes.find(n=>n.id==='p_dry'),int=nodes.find(n=>n.id==='r_int');
@@ -115,11 +115,12 @@ const pages=[
   extraIds:['plates','deposit']},
 {id:'maq4',section:'Máquinas',parent:'purificacao',title:'Precipitação',machine:'m4',
   lead:'Faz o urânio dissolvido virar sólido e separa esse sólido do líquido. A solução enche um tanque agitado, o agente precipitante é dosado e a hélice mistura; a lama desce do fundo cônico para uma rosca inclinada, que sobe o sólido até a calha e deixa o líquido escorrer de volta como efluente.',
-  facts:[['Estrutura','5 × 7 × 5, 94 blocos'],['Desde','0.1.4-alpha'],['Tanque','12.000 mB por lote'],['Lote','6 agentes → 24 concentrados úmidos + 9.000 mB de efluente']],
+  facts:[['Estrutura','5 × 7 × 5, 93 blocos'],['Desde','0.1.4-alpha'],['Tanque','12.000 mB por lote'],['Lote','6 agentes → 24 concentrados úmidos + 9.000 mB de efluente']],
   extraIds:['agent','umido']},
-{id:'maq5',section:'Máquinas',parent:'purificacao',title:'Secador industrial',machine:'m5',tag:'previsto',
-  lead:'Secará o concentrado úmido e entregará o yellowcake, coletando o condensado de processo.',
-  facts:[['Visual previsto','3 × 5 × 3: câmara horizontal isolada'],['Versão','depois da precipitação']]},
+{id:'maq5',section:'Máquinas',parent:'purificacao',title:'Secador industrial',machine:'m5',
+  lead:'Tira a água do concentrado úmido e entrega o yellowcake, o fim da primeira linha. O concentrado entra pela válvula rotativa numa câmara horizontal; as resistências aquecem a câmara a 140 °C e as pás reviram o concentrado enquanto o vapor sobe para o condensador, que devolve a água como condensado de processo.',
+  facts:[['Estrutura','4 × 7 × 3, 63 blocos'],['Desde','0.1.5-alpha'],['Lote','24 concentrados úmidos → 16 yellowcakes + 2.000 mB de condensado'],['Tempo e energia','90 s, 76.800 IF']],
+  extraIds:['umido','yellow','condensate']},
 
 // ---------- Planned topics ----------
 {id:'enriquecimento',group:'Próximas etapas',desc:'Conversão e enriquecimento',title:'Enriquecimento',tag:'previsto',
