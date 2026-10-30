@@ -4,7 +4,7 @@
    code yet), 'Previsto' (planned, details open), 'Em aberto' (undecided); 'IE' and 'Vanilla' are outside the mod.
    Quantities are game design values, not real chemical procedures. */
 window.IN_GRAPH={width:2820,height:1420,nodes:[],edges:[],
-  meta:{version:'0.1.5-alpha',next:'0.1.6-alpha',updated:'27/10/2026'}};
+  meta:{version:'0.1.6',next:'0.1.7',updated:'27/10/2026'}};
 (()=>{const g=IN_GRAPH;
 const n=(id,name,x,y,kind,img,recipe,info,status='Previsto',extra={})=>g.nodes.push({id,name,x,y,kind,img,recipe,info,status,...extra});
 const item=(id,name,x,y,img,recipe,info,status='Registrado',extra={})=>n(id,name,x,y,'item',img,recipe,info,status,extra);
