@@ -128,7 +128,7 @@ pages:{
       ['Planning','Comes with the data network. The current machines will get the expansion module tab.']]},
   seguranca:{title:'Radiation and safety',desc:'Contamination and protection',
     lead:'Four kinds of contamination have been defined, each with its subtypes and the materials and machines where it shows up. For now the mod only shows warnings in the tooltip; no effect exists in the game yet, and nothing will be announced before it does.',
-    text:[['Warnings already in the game','Slurry, crude solution and effluent: corrosive and radioactive (weak). Solvent: flammable. Concentrate and yellowcake: radioactive (weak) and toxic if inhaled. Cake and agglomerate: traces of radioactivity.']]},
+    text:[['Warnings already in the game','Slurry, crude solution and effluent: corrosive and radioactive (weak). Solvent: flammable. Concentrate and yellowcake: radioactive (weak) and toxic if inhaled. Cake and agglomerate: traces of radioactivity. Sulfuric acid: corrosive and oxidizer. Steam: hot.']]},
   catalogo:{title:'Item and fluid catalog',desc:'Every item and fluid',short:'Catalog'},
   creditos:{title:'Credits',desc:'The original mod and its authors',
     lead:'Immersive Nuclear is an addon: it only exists because of Immersive Engineering, which gives it the blocks of the structures, the machines that make the supplies, the look and the way multiblocks are built.',
@@ -297,17 +297,17 @@ plan:{
     qui:['Chemical','Contact with an aggressive substance. Instant effect; it stops when the contact ends.','Exposure: contact with a liquid (leak, broken tank), splashing when a machine with fluid is broken, vapour near leaks or open tanks. It goes away by moving off and washing with water. Approach: do not touch.'],
     p_glove:['Gloves and suit','Protect from contact and splashes.'],p_shower:['Emergency shower','Future block: washes the player.'],
     q_acid:['Acid / corrosive','Burns and wear on armour and tools.','While there is contact.'],
-    q_acid_0:['Slurry · grade 2'],q_acid_1:['Crude solution · grade 2'],q_acid_2:['Purified solution · grade 2'],q_acid_3:['Effluent · grade 3'],q_acid_4:['Depleted effluent'],q_acid_5:['Hexafluoride · grade 4'],
+    q_acid_0:['Slurry · grade 2'],q_acid_1:['Crude solution · grade 2'],q_acid_2:['Purified solution · grade 2'],q_acid_3:['Effluent · grade 3'],q_acid_4:['Depleted effluent'],q_acid_5:['Hexafluoride · grade 4'],q_acid_6:['Sulfuric acid · grade 3'],q_acid_7:['Hydrofluoric acid · grade 4'],
     q_base:['Caustic / alkaline','Lighter damage and slowness.','While there is contact.'],q_base_0:['Quicklime · grade 2'],q_base_1:['Neutralized sludge'],
     q_tox:['Toxic (heavy metals)','Poison; with repeated exposure, weakness.','Natural uranium attacks the kidneys: its real danger is chemical and by inhalation.'],q_tox_0:['Effluent'],q_tox_1:['Yellowcake'],
     q_vap:['Solvent vapour','Nausea and dizziness (the view sways).','Near leaks or open tanks.'],q_vap_0:['Solvent · grade 1'],
     fis:['Physical','Fire, pressure, heat and explosion, in the sense of the safety standards (GHS). A one-off accident: nothing builds up.','It is the trigger that turns a contained risk into an accident with contamination: an explosion spreads liquid, dust and radiation. Approach: do not let the accident happen.'],
     f_fire:['Flammable','A leak near fire or lava ignites; a burning solvent tank can explode.'],f_fire_0:['Solvent · grade 3'],
-    f_ox:['Oxidizer','Near fire, makes the fire stronger.'],f_ox_0:['Processing reagent · grade 2'],
-    f_press:['Pressure','Past the limit (an idea for later), the machine bursts and spreads its contents.'],f_press_0:['Filter press'],f_press_1:['Reactor'],f_press_2:['Hexafluoride · grade 2'],
-    f_heat:['Temperature','Touching a hot surface burns.'],f_heat_0:['Industrial dryer'],f_heat_1:['Reactor and steam lines'],f_heat_2:['Spent fuel · grade 1'],
+    f_ox:['Oxidizer','Near fire, makes the fire stronger.'],f_ox_0:['Processing reagent · grade 2'],f_ox_1:['Sulfuric acid · grade 1'],
+    f_press:['Pressure','Past the limit (an idea for later), the machine bursts and spreads its contents.'],f_press_0:['Filter press'],f_press_1:['Reactor'],f_press_2:['Hexafluoride · grade 2'],f_press_3:['Sulfuric Acid Unit (steam drum)'],
+    f_heat:['Temperature','Touching a hot surface burns.'],f_heat_0:['Industrial dryer'],f_heat_1:['Reactor and steam lines'],f_heat_2:['Spent fuel · grade 1'],f_heat_3:['Steam · grade 2'],f_heat_4:['Sulfuric Acid Unit (burner and boiler)'],
     f_boom:['Explosion','Combinations of the above: destroys blocks and spreads the other kinds (liquid, dust, radiation).']}
 },
 hzTable:[['Uranium powder (IE)',''],['Reagent','oxidizer'],['Slurry / crude solution',''],['Solvent','flammable; the chemical hazard is the vapour'],['Purified solution',''],['Effluent',''],
-  ['Quicklime',''],['Wet concentrate',''],['Yellowcake',''],['Hexafluoride (future, enrichment)','pressure'],['Spent fuel / high-level waste (future)','heat']]
+  ['Quicklime',''],['Wet concentrate',''],['Yellowcake',''],['Sulfuric acid','corrosive and oxidizer'],['Steam','hot'],['Hexafluoride (future, enrichment)','pressure'],['Spent fuel / high-level waste (future)','heat']]
 };

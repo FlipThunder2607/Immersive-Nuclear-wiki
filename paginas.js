@@ -55,7 +55,7 @@ const HZ=(()=>{const src=id=>IN_GRAPH.nodes.find(n=>n.id===id)||{},nodes=[],edge
     {id:'qui',name:'Química',glyph:'⚗',recipe:'Contato com substância agressiva. Efeito na hora; some quando o contato acaba.',info:'Exposição: contato com líquido (vazamento, tanque quebrado), respingo ao quebrar uma máquina com fluido, vapor perto de vazamentos ou tanques abertos. Sai afastando-se e lavando-se com água. Postura: não encostar.',
       prot:[['p_glove','Luvas e roupa','Protegem do contato e do respingo.'],['p_shower','Chuveiro de emergência','Bloco futuro: lava o jogador.']],
       subs:[{id:'q_acid',name:'Ácido / corrosivo',glyph:'H⁺',recipe:'Queimadura e desgaste da armadura e das ferramentas.',info:'Enquanto houver contato.',
-          leaves:[['polpa','Polpa',2,'No jogo'],['bruta','Solução bruta',2,'No jogo'],['pura','Solução purificada',2,'No jogo'],['eff','Efluente',3,'No jogo'],['poor','Efluente pobre',null,'No jogo'],[null,'Hexafluoreto',4,'Previsto']]},
+          leaves:[['polpa','Polpa',2,'No jogo'],['bruta','Solução bruta',2,'No jogo'],['pura','Solução purificada',2,'No jogo'],['eff','Efluente',3,'No jogo'],['poor','Efluente pobre',null,'No jogo'],[null,'Hexafluoreto',4,'Previsto'],['sacid','Ácido sulfúrico',3,'No jogo'],[null,'Ácido fluorídrico',4,'Definido']]},
         {id:'q_base',name:'Cáustico / alcalino',glyph:'OH⁻',recipe:'Dano mais leve e lentidão.',info:'Enquanto houver contato.',
           leaves:[['lime','Cal',2,'No jogo'],['sludge','Lama neutralizada',null,'Definido']]},
         {id:'q_tox',name:'Tóxico (metais pesados)',glyph:'☠',recipe:'Veneno; com exposição repetida, fraqueza.',info:'O urânio natural ataca os rins: o perigo real dele é químico e por inalação.',
@@ -65,11 +65,11 @@ const HZ=(()=>{const src=id=>IN_GRAPH.nodes.find(n=>n.id===id)||{},nodes=[],edge
     {id:'fis',name:'Física',glyph:'⚠',recipe:'Fogo, pressão, calor e explosão, no sentido das normas de segurança (GHS / NR-26). Acidente pontual: nada se acumula.',info:'É o gatilho que transforma um risco contido num acidente com contaminação: uma explosão espalha líquido, pó e radiação. Postura: não deixar o acidente acontecer.',
       prot:[],
       subs:[{id:'f_fire',name:'Inflamável',glyph:'▲',recipe:'Vazamento perto de fogo ou lava acende; um tanque de solvente em chamas pode explodir.',info:'',leaves:[['solvent','Solvente',3,'No jogo']]},
-        {id:'f_ox',name:'Oxidante',glyph:'O',recipe:'Perto de fogo, torna o incêndio mais forte.',info:'',leaves:[['reagent','Reagente de processamento',2,'No jogo']]},
+        {id:'f_ox',name:'Oxidante',glyph:'O',recipe:'Perto de fogo, torna o incêndio mais forte.',info:'',leaves:[['reagent','Reagente de processamento',2,'No jogo'],['sacid','Ácido sulfúrico',1,'No jogo']]},
         {id:'f_press',name:'Pressão',glyph:'P',recipe:'Passado o limite (ideia para depois), a máquina rompe e espalha o conteúdo.',info:'',
-          leaves:[['m2','Filtro-prensa',null,'Definido'],[null,'Reator',null,'Previsto'],[null,'Hexafluoreto',2,'Previsto']]},
+          leaves:[['m2','Filtro-prensa',null,'Definido'],[null,'Reator',null,'Previsto'],[null,'Hexafluoreto',2,'Previsto'],['acidUnit','Unidade de Ácido Sulfúrico (tambor de vapor)',null,'Definido']]},
         {id:'f_heat',name:'Temperatura',glyph:'°C',recipe:'Encostar em superfície quente causa queimadura.',info:'',
-          leaves:[['m5','Secador industrial',null,'Definido'],[null,'Reator e linhas de vapor',null,'Previsto'],[null,'Combustível usado',1,'Previsto']]},
+          leaves:[['m5','Secador industrial',null,'Definido'],[null,'Reator e linhas de vapor',null,'Previsto'],[null,'Combustível usado',1,'Previsto'],['steam','Vapor',2,'No jogo'],['acidUnit','Unidade de Ácido Sulfúrico (queimador e caldeira)',null,'Definido']]},
         {id:'f_boom',name:'Explosão',glyph:'✸',recipe:'Combinações dos de cima: destrói blocos e espalha os outros tipos (líquido, pó, radiação).',info:'',leaves:[]}]}]);
   // Radioactive dust adds internal dose: from the dry-dust row up to the internal row, between the bus and the subtypes
   const dry=nodes.find(n=>n.id==='p_dry'),int=nodes.find(n=>n.id==='r_int');
@@ -77,7 +77,7 @@ const HZ=(()=>{const src=id=>IN_GRAPH.nodes.find(n=>n.id===id)||{},nodes=[],edge
   // Grades 0-4 per material (radiological, chemical, particulate, physical) and the physical kind
   const table=[['Pó de urânio (IE)','progressao/assets/uranio.png',1,1,2,0,''],['Reagente','x16/reagente_processamento.png',0,2,1,2,'oxidante'],['Polpa / solução bruta','fluidos/uranium_slurry_still.png',1,2,0,0,''],
     ['Solvente','fluidos/extraction_solvent_still.png',0,1,0,3,'inflamável; o químico é o vapor'],['Solução purificada','fluidos/purified_uranium_solution_still.png',2,2,0,0,''],['Efluente','fluidos/chemical_effluent_still.png',1,3,0,0,''],
-    ['Cal','x16/cal.png',0,2,2,0,''],['Concentrado úmido','x16/concentrado_umido_uranio.png',2,1,0,0,''],['Yellowcake','x16/yellowcake.png',2,2,3,0,''],
+    ['Cal','x16/cal.png',0,2,2,0,''],['Concentrado úmido','x16/concentrado_umido_uranio.png',2,1,0,0,''],['Yellowcake','x16/yellowcake.png',2,2,3,0,''],['Ácido sulfúrico','fluidos/sulfuric_acid_still.png',0,3,0,1,'corrosivo e oxidante'],['Vapor','fluidos/steam_still.png',0,0,0,2,'quente'],
     ['Hexafluoreto (futuro, enriquecimento)',null,2,4,0,2,'pressão'],['Combustível usado / rejeito de alta (futuro)',null,4,1,0,1,'calor']];
   return {plan:{nodes,edges},table};})();
 
@@ -322,7 +322,7 @@ const pages=[
 {id:'seguranca',group:'Sistemas',desc:'Contaminação e proteções',title:'Radiação e segurança',tag:'em aberto',
   lead:'Quatro tipos de contaminação foram definidos, cada um com os seus subtipos e os materiais e máquinas onde aparece. Por enquanto o mod só mostra avisos no tooltip; nenhum efeito existe no jogo ainda, e nada será anunciado antes de existir.',
   graph:{plan:HZ.plan},hazardTable:HZ.table,noCards:true,
-  text:[['Avisos que já existem','Polpa, solução bruta e efluente: corrosivo e radioativo (fraco). Solvente: inflamável. Concentrado e yellowcake: radioativo (fraco) e tóxico se inalado. Torta e aglomerado: traços radioativos.']]},
+  text:[['Avisos que já existem','Polpa, solução bruta e efluente: corrosivo e radioativo (fraco). Solvente: inflamável. Concentrado e yellowcake: radioativo (fraco) e tóxico se inalado. Torta e aglomerado: traços radioativos. Ácido sulfúrico: corrosivo e oxidante. Vapor: quente.']]},
 {id:'catalogo',group:'Referência',desc:'Todos os itens e fluidos',short:'Catálogo',title:'Catálogo de itens e fluidos',catalog:true},
 {id:'creditos',group:'Referência',desc:'O mod original e os autores',title:'Créditos',
   lead:'O Immersive Nuclear é um addon: ele só existe por causa do Immersive Engineering, de onde vêm os blocos das estruturas, as máquinas que fazem os insumos, o visual e o jeito de construir multiblocos.',
