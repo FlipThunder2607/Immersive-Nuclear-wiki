@@ -85,7 +85,7 @@ const pages=[
 {id:'inicio',title:'Início',home:true},
 
 // ---------- Purification of uranium (the part in the game) ----------
-{id:'purificacao',group:'Em produção',desc:'Do pó de urânio ao yellowcake',title:'Purificação do urânio',tag:'em produção',
+{id:'purificacao',group:'Concluídas',desc:'Do pó de urânio ao yellowcake',title:'Purificação do urânio',tag:'concluída',
   lead:'A primeira linha do mod: do pó de urânio do Immersive Engineering ao yellowcake, o concentrado de urânio ainda não enriquecido. Cinco máquinas multibloco em série, com insumos feitos nas máquinas do IE e todos os subprodutos com destino.',
   graph:{all:true},
   text:[['Como a linha funciona','O pó de urânio é atacado quimicamente no processamento químico e vira polpa. O filtro-prensa separa o sólido e deixa passar a solução bruta. A separação química tira o urânio da solução com um solvente e o devolve limpo numa solução de lavagem. A precipitação transforma o urânio dissolvido em sólido e o secador industrial entrega o yellowcake.'],

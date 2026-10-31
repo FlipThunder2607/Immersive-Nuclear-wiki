@@ -4,7 +4,7 @@
 window.IN_WIKI_EN={
 ui:{
   'No jogo':'In game','Registrado':'Registered','Definido':'Defined','Previsto':'Planned','Em aberto':'Open',
-  'em produção':'in production','previsto':'planned','em aberto':'open','em desenvolvimento':'in development',
+  'concluída':'completed','Concluídas':'Completed','em produção':'in production','previsto':'planned','em aberto':'open','em desenvolvimento':'in development',
   'Em produção':'In production','Próximas etapas':'Next stages','Sistemas':'Systems','Referência':'Reference',
   'Visão geral':'Overview','Planejamento':'Planning','Máquinas':'Machines','Etapas':'Stages','Equipamentos':'Equipment',
   'Insumos e preparo':'Supplies and preparation','Linha principal · concentrado não enriquecido':'Main line · non-enriched concentrate',
