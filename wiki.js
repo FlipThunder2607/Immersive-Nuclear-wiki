@@ -92,7 +92,8 @@ const pct=own=>own.length?Math.round(100*own.filter(n=>n.status==='No jogo').len
 // IE and vanilla are left out, and so are the contamination leaves, which only point at materials counted elsewhere.
 // A step that shows up in two topics (the yellowcake, the reactor...) counts once, in the first.
 function topicSteps(){const seen=new Set(),out=[];
-  pages.filter(p=>!p.parent&&!p.home&&p.graph).forEach(p=>{const g=p.graph.all?G:p.graph.plan;if(!g)return;
+  // the purification's chart is the map without the start of line 2 (line:2), which the enrichment's plan counts
+  pages.filter(p=>!p.parent&&!p.home&&p.graph).forEach(p=>{const g=p.graph.all?{nodes:G.nodes.filter(n=>n.line!==2)}:p.graph.plan;if(!g)return;
     const own=g.nodes.filter(n=>STATUS.includes(n.status)&&!n.alias&&!/_\d+$/.test(n.id)).filter(n=>{const k=n.name.toLowerCase();if(seen.has(k))return false;seen.add(k);return true;});
     if(own.length)out.push([p,own]);});
   return out;}
