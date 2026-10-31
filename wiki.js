@@ -37,7 +37,7 @@ function build(){
 // ---------- graphs ----------
 // Shortcuts of the purification map (as in the guide)
 const VIEWS=[{id:'line',label:'Linha principal',zoom:.8,center:[1050,475]},{id:'supply',label:'Insumos',zoom:.85,center:[750,230]},{id:'waste',label:'Resíduos',zoom:.75,center:[1260,1010]}];
-const LANES=[[20,'Insumos e preparo',0,360],[375,'Linha principal · concentrado não enriquecido',360,600],[625,'Subprodutos, recuperação e tratamento',600,1e9]];
+const LANES=[[20,'Insumos e preparo',0,360],[375,'Linha principal · concentrado não enriquecido',360,600],[625,'Subprodutos, recuperação e tratamento',600,1400]];
 // A subset of a graph, moved so its nodes start near the top-left corner; edges kept only between included nodes
 function subset(src,ids,lanes=[]){const set=new Set(ids),nodes=src.nodes.filter(n=>set.has(n.id)),edges=src.edges.filter(e=>set.has(e.a)&&set.has(e.b));
   let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;const grow=(x,y,w,h1,h2)=>{x0=Math.min(x0,x-w);x1=Math.max(x1,x+w);y0=Math.min(y0,y-h1);y1=Math.max(y1,y+h2);};
@@ -58,7 +58,9 @@ function around(id){const m=byId.get(id),ins=[],outs=[],types=new Map();
   side(ins,130,-1);side(outs,870,1);
   return {meta:G.meta,width:1000,height:H,nodes,edges,lanes:[]};}
 function graphOf(p){const g=p.graph;if(p.machine)return around(p.machine);if(!g)return null;
-  if(g.all)return {...G,lanes:LANES.map(l=>[l[0],T(l[1])]),full:true};
+  // The purification chart: the whole map but the start of line 2 (line:2), which has its own pages
+  if(g.all){const keep=new Set(G.nodes.filter(n=>n.line!==2).map(n=>n.id));
+    return {...G,height:1420,nodes:G.nodes.filter(n=>keep.has(n.id)),edges:G.edges.filter(e=>keep.has(e.a)&&keep.has(e.b)),lanes:LANES.map(l=>[l[0],T(l[1])]),full:true};}
   if(g.plan){const ids=g.plan.nodes.map(n=>n.id);return subset(g.plan,ids);}
   if(g.from){const plan=pageById.get(g.from).graph.plan;return subset(plan,g.ids);}
   return subset(G,g.ids,LANES);}

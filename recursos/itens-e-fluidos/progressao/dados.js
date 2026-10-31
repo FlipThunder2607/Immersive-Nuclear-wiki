@@ -3,8 +3,8 @@
    Statuses: 'No jogo' (works in the game), 'Registrado' (exists, nothing uses it yet), 'Definido' (process agreed, no
    code yet), 'Previsto' (planned, details open), 'Em aberto' (undecided); 'IE' and 'Vanilla' are outside the mod.
    Quantities are game design values, not real chemical procedures. */
-window.IN_GRAPH={width:2820,height:1420,nodes:[],edges:[],
-  meta:{version:'0.1.6',next:'0.1.7',updated:'27/10/2026'}};
+window.IN_GRAPH={width:2820,height:1840,nodes:[],edges:[],
+  meta:{version:'0.1.7',next:'0.1.8',updated:'31/10/2026'}};
 (()=>{const g=IN_GRAPH;
 const n=(id,name,x,y,kind,img,recipe,info,status='Previsto',extra={})=>g.nodes.push({id,name,x,y,kind,img,recipe,info,status,...extra});
 const item=(id,name,x,y,img,recipe,info,status='Registrado',extra={})=>n(id,name,x,y,'item',img,recipe,info,status,extra);
@@ -77,4 +77,24 @@ e('m3','eff','waste','',[[1130,545],[1130,597],[1315,597],[1315,650]]);e('m4','e
 e('eff','m1','recycle','licor reciclado',[[1288,715],[1235,715],[1235,625],[330,625],[330,545]]);
 e('poor','m1','recycle','licor reciclado',[[1545,1245],[1545,1330],[25,1330],[25,600],[285,600],[285,545]]);
 e('reuse','m1','recycle','',[[95,1115],[95,620],[260,620],[260,545]]);e('condensate','m1','recycle','licor reciclado',[[1880,715],[1880,612],[355,612],[355,545]]);
+
+// ---------- Line 2: enrichment (its start). line:2 keeps these off the wiki's purification chart ----------
+const L2={line:2};
+item('sulfurA','Enxofre',95,1520,ie('enxofre'),'Triturador do IE; vale enxofre de qualquer mod, em pó ou em bloco.','1 por ciclo da Unidade de Ácido Sulfúrico; um bloco vale 9 ciclos.','IE',{...L2,alias:'sulfur'});
+m('acidUnit','Unidade de Ácido Sulfúrico',300,1520,'Ciclo (provisório, 5 s, 3.200 IF): 1 enxofre + 500 mB de água → 500 mB de ácido sulfúrico + 250 mB de vapor. Um bloco de enxofre faz um ciclo 9 vezes mais longo, com 9 vezes a água e a produção.','O processo de contato: o enxofre queima com chama azul no ar do soprador, a caldeira de recuperação esfria o gás e faz vapor, as quatro camadas de catalisador do conversor fazem trióxido de enxofre e a torre de absorção o transforma em ácido sulfúrico; o gás limpo sai pela chaminé. Com o tanque de vapor cheio, a válvula de alívio do tambor solta o excesso. Chama, sons e fumaça só com a máquina rodando. Estrutura 5×7×8 (126 blocos). Modelo do usuário.','No jogo',{...L2,model:'acid'});
+item('waterA','Água',300,1720,ie('agua'),'Encanamento ou recipiente.','Entra no alto da torre de absorção: 500 mB por ciclo.','Vanilla',{...L2,alias:'water'});
+fluid('sacid','Ácido sulfúrico',510,1520,'sulfuric_acid','Sai da Unidade de Ácido Sulfúrico: 500 mB por ciclo.','Corrosivo e oxidante. Vai para o Forno de Ácido Fluorídrico.','No jogo');
+fluid('steam','Vapor',510,1720,'steam','Subproduto da caldeira de recuperação: 250 mB por ciclo.','Quente. Funciona nas máquinas a vapor de outros mods; com o tanque cheio a máquina solta o excesso pela válvula de alívio.','No jogo');
+n('fluorite','Fluorita',715,1720,'item',null,'Fonte a definir.','Fluoreto de cálcio: a matéria-prima do ácido fluorídrico.','Em aberto',{...L2,glyph:'CaF₂'});
+m('hfk','Forno de Ácido Fluorídrico',715,1520,'Fluorita + ácido sulfúrico → ácido fluorídrico + gesso (quantidades a definir).','Forno rotativo aquecido por fora: o gás sai pela ponta e é condensado em ácido; o gesso sai pela outra ponta.','Definido',L2);
+n('hf','Ácido fluorídrico',925,1520,'fluid',null,'Sai do Forno de Ácido Fluorídrico.','Entra na Unidade de Conversão.','Definido',{...L2,glyph:'HF'});
+n('gyp','Gesso',925,1720,'item',null,'Subproduto do Forno de Ácido Fluorídrico.','Destino a definir.','Em aberto',{...L2,glyph:'CaSO₄'});
+n('h2','Hidrogênio',1340,1720,'fluid',null,'Fonte a definir.','Reduz o óxido de urânio dentro da conversão.','Em aberto',{...L2,glyph:'H₂'});
+item('drumA','Tambor de concentrado',1130,1720,'x64/tambor-concentrado-icone-v2.png','Da linha 1, cheio de yellowcake.','A linha 2 só aceita yellowcake em tambores.','No jogo',{...L2,alias:'drum'});
+m('conv','Unidade de Conversão',1130,1520,'Yellowcake (em tambores) + ácido fluorídrico + hidrogênio → hexafluoreto de urânio.','A primeira máquina do enriquecimento. Detalhes em aberto.','Previsto',L2);
+n('uf6n','Hexafluoreto natural',1340,1520,'fluid',null,'Saída da conversão → Unidade de Enriquecimento.','UF₆ com a proporção natural de urânio-235.','Previsto',{...L2,glyph:'UF₆'});
+g.nodes.filter(x=>['sacid','steam'].includes(x.id)).forEach(x=>x.line=2);
+e('sulfurA','acidUnit','supply');e('waterA','acidUnit','supply');e('acidUnit','sacid');e('acidUnit','steam','waste','',[[300,1585],[300,1640],[440,1640],[440,1720],[458,1720]]);
+e('sacid','hfk');e('fluorite','hfk','supply');e('hfk','hf');e('hfk','gyp','waste','',[[715,1585],[715,1640],[860,1640],[860,1720],[873,1720]]);
+e('hf','conv');e('drumA','conv','supply');e('h2','conv','supply');e('conv','uf6n');
 })();
