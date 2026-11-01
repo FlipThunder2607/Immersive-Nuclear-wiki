@@ -4,7 +4,7 @@
    code yet), 'Previsto' (planned, details open), 'Em aberto' (undecided); 'IE' and 'Vanilla' are outside the mod.
    Quantities are game design values, not real chemical procedures. */
 window.IN_GRAPH={width:2820,height:1840,nodes:[],edges:[],
-  meta:{version:'0.1.7',next:'0.1.8',updated:'31/10/2026'}};
+  meta:{version:'0.1.8',next:'0.1.9',updated:'31/10/2026'}};
 (()=>{const g=IN_GRAPH;
 const n=(id,name,x,y,kind,img,recipe,info,status='Previsto',extra={})=>g.nodes.push({id,name,x,y,kind,img,recipe,info,status,...extra});
 const item=(id,name,x,y,img,recipe,info,status='Registrado',extra={})=>n(id,name,x,y,'item',img,recipe,info,status,extra);
@@ -85,15 +85,15 @@ m('acidUnit','Unidade de Ácido Sulfúrico',300,1520,'Ciclo (provisório, 5 s, 3
 item('waterA','Água',300,1720,ie('agua'),'Encanamento ou recipiente.','Entra no alto da torre de absorção: 500 mB por ciclo.','Vanilla',{...L2,alias:'water'});
 fluid('sacid','Ácido sulfúrico',510,1520,'sulfuric_acid','Sai da Unidade de Ácido Sulfúrico: 500 mB por ciclo.','Corrosivo e oxidante. Vai para o Forno de Ácido Fluorídrico.','No jogo');
 fluid('steam','Vapor',510,1720,'steam','Subproduto da caldeira de recuperação: 250 mB por ciclo.','Quente. Funciona nas máquinas a vapor de outros mods; com o tanque cheio a máquina solta o excesso pela válvula de alívio.','No jogo');
-n('fluorite','Fluorita',715,1720,'item',null,'Fonte a definir.','Fluoreto de cálcio: a matéria-prima do ácido fluorídrico.','Em aberto',{...L2,glyph:'CaF₂'});
-m('hfk','Forno de Ácido Fluorídrico',715,1520,'Fluorita + ácido sulfúrico → ácido fluorídrico + gesso (quantidades a definir).','Forno rotativo aquecido por fora: o gás sai pela ponta e é condensado em ácido; o gesso sai pela outra ponta.','Definido',{...L2,concept:'../2-enriquecimento/forno-de-acido-fluoridrico/forno-hf-conceito-realista-v1.png',conceptNote:'Imagem conceitual; ainda sem modelo 3D.'});
-n('hf','Ácido fluorídrico',925,1520,'fluid',null,'Sai do Forno de Ácido Fluorídrico.','Entra na Unidade de Conversão.','Definido',{...L2,glyph:'HF'});
-n('gyp','Gesso',925,1720,'item',null,'Subproduto do Forno de Ácido Fluorídrico.','Destino a definir.','Em aberto',{...L2,glyph:'CaSO₄'});
+item('fluorite','Fluorita',715,1720,ico('fluorita'),'Minério de fluorita do Overworld (camadas 10 a 60): quebrado dá 1 a 2 cristais; o Triturador do IE moe o minério em 3 pós (o cristal em 1). Também na Escavadeira do IE.','Fluoreto de cálcio. Vale a fluorita de qualquer mod (oreFluorite, gemFluorite, dustFluorite). O pó entra no Forno de Ácido Fluorídrico.','No jogo',{...L2});
+m('hfk','Forno de Ácido Fluorídrico',715,1520,'Ciclo (provisório, 10 s, 12.800 IF): 1 pó de fluorita + 500 mB de ácido sulfúrico → 500 mB de ácido fluorídrico + 1 gesso.','Forno rotativo: a fluorita e o ácido entram na cabeça de alimentação, reagem no tambor aquecido que gira (coroa dentada, pinhão e roletes), o gás passa pelo lavador e pelo condensador até o tanque e o gesso sai na cabeça de descarga. Bobinas e aquecedores acesos, tambor e engrenagens girando, sons do tambor, das engrenagens e da bobina. Estrutura 5×7×3 (84 blocos). Modelo do usuário.','No jogo',{...L2,model:'hfk'});
+fluid('hf','Ácido fluorídrico',925,1520,'hydrofluoric_acid','Sai do Forno de Ácido Fluorídrico: 500 mB por ciclo.','Corrosivo e tóxico. Entra na Unidade de Conversão.','No jogo');
+item('gyp','Gesso',925,1720,ico('gesso'),'Subproduto do Forno de Ácido Fluorídrico: 1 por ciclo.','Três usos: no Forno a Arco do IE com pó de coque volta a cal e enxofre (2 gessos → 2 cais + 1 enxofre); no Misturador do IE substitui a argila no concreto e rende 750 mB; 4 fazem o Bloco de Gesso, que vira ladrilho, tijolos, laje e escada como o aglomerado.','No jogo',{...L2});
 n('h2','Hidrogênio',1340,1720,'fluid',null,'Fonte a definir.','Reduz o óxido de urânio dentro da conversão.','Em aberto',{...L2,glyph:'H₂'});
 item('drumA','Tambor de concentrado',1130,1720,'x64/tambor-concentrado-icone-v2.png','Da linha 1, cheio de yellowcake.','A linha 2 só aceita yellowcake em tambores.','No jogo',{...L2,alias:'drum'});
 m('conv','Unidade de Conversão',1130,1520,'Yellowcake (em tambores) + ácido fluorídrico + hidrogênio → hexafluoreto de urânio.','A primeira máquina do enriquecimento. Detalhes em aberto.','Previsto',{...L2,concept:'../2-enriquecimento/unidade-de-conversao/conversao-conceito-realista-v1.png',conceptNote:'Imagem conceitual; ainda sem modelo 3D.'});
 n('uf6n','Hexafluoreto natural',1340,1520,'fluid',null,'Saída da conversão → Unidade de Enriquecimento.','UF₆ com a proporção natural de urânio-235.','Previsto',{...L2,glyph:'UF₆'});
-g.nodes.filter(x=>['sacid','steam'].includes(x.id)).forEach(x=>x.line=2);
+g.nodes.filter(x=>['sacid','steam','hf'].includes(x.id)).forEach(x=>x.line=2);
 e('sulfurA','acidUnit','supply');e('waterA','acidUnit','supply');e('acidUnit','sacid');e('acidUnit','steam','waste','',[[300,1585],[300,1640],[440,1640],[440,1720],[458,1720]]);
 e('sacid','hfk');e('fluorite','hfk','supply');e('hfk','hf');e('hfk','gyp','waste','',[[715,1585],[715,1640],[860,1640],[860,1720],[873,1720]]);
 e('hf','conv');e('drumA','conv','supply');e('h2','conv','supply');e('conv','uf6n');
