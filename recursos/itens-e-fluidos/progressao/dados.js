@@ -3,7 +3,7 @@
    Statuses: 'No jogo' (works in the game), 'Registrado' (exists, nothing uses it yet), 'Definido' (process agreed, no
    code yet), 'Previsto' (planned, details open), 'Em aberto' (undecided); 'IE' and 'Vanilla' are outside the mod.
    Quantities are game design values, not real chemical procedures. */
-window.IN_GRAPH={width:2820,height:1840,nodes:[],edges:[],
+window.IN_GRAPH={width:2820,height:2000,nodes:[],edges:[],
   meta:{version:'0.1.9',next:'0.1.10',updated:'01/11/2026'}};
 (()=>{const g=IN_GRAPH;
 const n=(id,name,x,y,kind,img,recipe,info,status='Previsto',extra={})=>g.nodes.push({id,name,x,y,kind,img,recipe,info,status,...extra});
@@ -85,7 +85,9 @@ m('acidUnit','Unidade de Ácido Sulfúrico',300,1520,'Ciclo (provisório, 5 s, 3
 item('waterA','Água',300,1720,ie('agua'),'Encanamento ou recipiente.','Entra no alto da torre de absorção: 500 mB por ciclo.','Vanilla',{...L2,alias:'water'});
 fluid('sacid','Ácido sulfúrico',510,1520,'sulfuric_acid','Sai da Unidade de Ácido Sulfúrico: 500 mB por ciclo.','Corrosivo e oxidante. Vai para o Forno de Ácido Fluorídrico.','No jogo');
 fluid('steam','Vapor',510,1720,'steam','Subproduto da caldeira de recuperação: 250 mB por ciclo.','Quente. Funciona nas máquinas a vapor de outros mods; com o tanque cheio a máquina solta o excesso pela válvula de alívio.','No jogo');
-item('fluorite','Fluorita',715,1720,ico('fluorita'),'Minério de fluorita do Overworld (camadas 10 a 60): quebrado dá 1 a 2 cristais; o Triturador do IE moe o minério em 3 pós (o cristal em 1). Também na Escavadeira do IE.','Fluoreto de cálcio. Vale a fluorita de qualquer mod (oreFluorite, gemFluorite, dustFluorite). O pó entra no Forno de Ácido Fluorídrico.','No jogo',{...L2});
+item('fluorite','Fluorita',510,1900,ico('fluorita'),'Minério de fluorita do Overworld (camadas 10 a 60): quebrado dá 1 a 2 cristais. Também na Escavadeira do IE.','Fluoreto de cálcio. Vale a fluorita de qualquer mod (oreFluorite, gemFluorite).','No jogo',{...L2});
+m('crushF','Triturador • IE',715,1900,'1 minério de fluorita → 3 pós de fluorita; 1 cristal → 1 pó.','O Triturador do IE moe a fluorita para o forno.','No jogo',{...L2,model:'ie_crusher'});
+item('fluoriteDust','Pó de fluorita',715,1720,ico('po_fluorita'),'Sai do Triturador do IE (3 por minério, 1 por cristal); também volta da neutralização do efluente fluoretado da conversão.','Fluoreto de cálcio em pó: o que o Forno de Ácido Fluorídrico usa, 1 por ciclo. Vale o de qualquer mod (dustFluorite).','No jogo',{...L2});
 m('hfk','Forno de Ácido Fluorídrico',715,1520,'Ciclo (provisório, 10 s, 12.800 IF): 1 pó de fluorita + 500 mB de ácido sulfúrico → 500 mB de ácido fluorídrico + 1 gesso.','Forno rotativo: a fluorita e o ácido entram na cabeça de alimentação, reagem no tambor aquecido que gira (coroa dentada, pinhão e roletes), o gás passa pelo lavador e pelo condensador até o tanque e o gesso sai na cabeça de descarga. Bobinas e aquecedores acesos, tambor e engrenagens girando, sons do tambor, das engrenagens e da bobina. Estrutura 5×7×3 (86 blocos). Modelo do usuário.','No jogo',{...L2,model:'hfk'});
 fluid('hf','Ácido fluorídrico',925,1520,'hydrofluoric_acid','Sai do Forno de Ácido Fluorídrico: 500 mB por ciclo.','Corrosivo e tóxico. Entra na Unidade de Conversão.','No jogo');
 item('gyp','Gesso',925,1720,ico('gesso'),'Subproduto do Forno de Ácido Fluorídrico: 1 por ciclo.','Três usos: no Forno a Arco do IE com pó de coque volta a cal e enxofre (2 gessos → 2 cais + 1 enxofre); no Misturador do IE substitui a argila no concreto e rende 750 mB; 4 fazem o Bloco de Gesso, que vira ladrilho, tijolos, laje e escada como o aglomerado.','No jogo',{...L2});
@@ -98,6 +100,6 @@ m('conv','Unidade de Conversão',1130,1520,'Yellowcake (em tambores) + ácido fl
 n('uf6n','Hexafluoreto natural',1340,1520,'fluid','fluidos/uranium_hexafluoride_still.png','Saída da conversão → Unidade de Enriquecimento.','UF₆ com a proporção natural de urânio-235. Lilás claro ao branco, com cristais hexagonais.','Definido',L2);
 g.nodes.filter(x=>['sacid','steam','hf'].includes(x.id)).forEach(x=>x.line=2);
 e('sulfurA','acidUnit','supply');e('waterA','acidUnit','supply');e('acidUnit','sacid');e('acidUnit','steam','waste','',[[300,1585],[300,1640],[440,1640],[440,1720],[458,1720]]);
-e('sacid','hfk');e('fluorite','hfk','supply');e('hfk','hf');e('hfk','gyp','waste','',[[715,1585],[715,1640],[860,1640],[860,1720],[873,1720]]);
+e('sacid','hfk');e('fluorite','crushF','supply');e('crushF','fluoriteDust');e('fluoriteDust','hfk','supply');e('hfk','hf');e('hfk','gyp','waste','',[[715,1585],[715,1640],[860,1640],[860,1720],[873,1720]]);
 e('hf','conv');e('drumA','conv','supply');e('h2','conv','supply');e('elz','h2');e('waterE','elz','supply');e('elz','o2','waste');e('conv','uf6n');
 })();
