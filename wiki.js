@@ -138,7 +138,7 @@ function render(){const id=(location.hash.match(/^#\/([\w-]+)/)||[])[1]||'inicio
   document.title=(p.home?'':p.title+' · ')+'Immersive Nuclear wiki';window.scrollTo(0,0);document.body.classList.remove('menu');}
 function catalogFilter(main){const out=main.querySelector('#cat'),input=main.querySelector('input');let st='';
   const norm=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
-  const wip=['automacao','modulos'].flatMap(id=>pageById.get(id).graph.plan.nodes).filter(n=>n.status==='Em produção'&&n.id!=='pmod');
+  const wip=['automacao','modulos','enriquecimento'].flatMap(id=>pageById.get(id).graph.plan.nodes).filter(n=>n.status==='Em produção'&&n.id!=='pmod'&&!byId.has(n.id));
   const draw=()=>{const q=norm(input.value);const list=[...G.nodes,...wip].filter(n=>!ieMachine(n)&&!n.alias&&(!st||n.status===st||(st==='IE'&&n.status==='Vanilla'))&&norm(n.name+' '+n.recipe+' '+n.info).includes(q));
     out.innerHTML=list.length?cards(list):`<p class="body">${T('Nada encontrado.')}</p>`;out.querySelectorAll('canvas').forEach(c=>IN_RENDER_MODEL(c,c.dataset.model));};
   input.oninput=draw;main.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{st=b.dataset.st;main.querySelectorAll('[data-st]').forEach(x=>x.classList.toggle('on',x===b));draw();});draw();}
