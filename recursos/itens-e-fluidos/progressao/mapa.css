@@ -9,12 +9,12 @@
 @media(prefers-reduced-motion:reduce){#in-progress .in-fluid{animation:none}}
 
 /* Progress: version line, a bar split by status, the legend; each node's frame shows its status as a corner dot */
-#in-progress{--st-no-jogo:#7fc46a;--st-registrado:#6ea3d8;--st-definido:#e0b84f;--st-previsto:#8b8f84;--st-em-aberto:#c9705a}
+#in-progress{--st-no-jogo:#7fc46a;--st-em-producao:#b48ad6;--st-registrado:#6ea3d8;--st-definido:#e0b84f;--st-previsto:#8b8f84;--st-em-aberto:#c9705a}
 #in-progress .in-progressbar{margin-top:10px;max-width:650px}#in-progress .in-version{font-size:11px;color:#f2d18b;margin-bottom:5px}
 #in-progress .in-bar{display:flex;height:10px;border:2px solid #121812;background:#1d221c}#in-progress .in-bar span{display:block}
 #in-progress .in-legend{display:flex;flex-wrap:wrap;gap:10px;font-size:10px;margin-top:5px;color:#ccd2c0}#in-progress .in-legend b{color:#fff3cc;margin-left:auto}
 #in-progress .in-legend span:before{content:'';display:inline-block;width:8px;height:8px;margin-right:4px;vertical-align:middle;background:var(--c)}
-#in-progress .st-no-jogo{--c:var(--st-no-jogo)}#in-progress .st-registrado{--c:var(--st-registrado)}#in-progress .st-definido{--c:var(--st-definido)}#in-progress .st-previsto{--c:var(--st-previsto)}#in-progress .st-em-aberto{--c:var(--st-em-aberto)}
+#in-progress .st-no-jogo{--c:var(--st-no-jogo)}#in-progress .st-em-producao{--c:var(--st-em-producao)}#in-progress .st-registrado{--c:var(--st-registrado)}#in-progress .st-definido{--c:var(--st-definido)}#in-progress .st-previsto{--c:var(--st-previsto)}#in-progress .st-em-aberto{--c:var(--st-em-aberto)}
 #in-progress .in-bar span{background:var(--c)}
 #in-progress .in-node[class*=" st-"] .in-frame:after{content:'';position:absolute;top:-6px;left:-6px;width:10px;height:10px;border:2px solid #10170f;background:var(--c,transparent)}
 #in-progress .in-node.st-ie .in-frame:after,#in-progress .in-node.st-vanilla .in-frame:after{display:none}

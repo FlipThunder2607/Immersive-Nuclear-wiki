@@ -4,7 +4,7 @@
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const colors={main:'#d8b45f',supply:'#7ba8c9',waste:'#c58b60',recycle:'#9cba77'};
 // Progress of the mod's own steps (IE and vanilla left out): how many work in the game, per status
-const STATUS=['No jogo','Registrado','Definido','Previsto','Em aberto'],slug=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/\s+/g,'-');
+const STATUS=['No jogo','Em produção','Registrado','Definido','Previsto','Em aberto'],slug=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/\s+/g,'-');
 const GUIDE={title:'Do minério ao concentrado',intro:'Explore os processos do Immersive Nuclear. Passe o mouse para ver a receita; clique para fixar os detalhes.',
   base:'',lanes:[[20,'Insumos e preparo'],[375,'Linha 1 · concentrado não enriquecido'],[625,'Subprodutos, recuperação e tratamento'],[1395,'Linha 2 · enriquecimento (começo)']],
   views:[{id:'line',label:'Linha principal',zoom:.8,center:[1050,475]},{id:'supply',label:'Insumos',zoom:.85,center:[750,230]},{id:'waste',label:'Resíduos',zoom:.75,center:[1260,1010]},{id:'line2',label:'Linha 2',zoom:.8,center:[720,1610]}],

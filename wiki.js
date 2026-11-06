@@ -5,7 +5,7 @@
 const W=IN_WIKI,EN=window.IN_WIKI_EN||{},BASE='recursos/itens-e-fluidos/',CATALOG=null;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const slug=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/\s+/g,'-');
-const STATUS=['No jogo','Registrado','Definido','Previsto','Em aberto'];
+const STATUS=['No jogo','Em produção','Registrado','Definido','Previsto','Em aberto'];
 
 // ---------- language ----------
 const store={get(){try{return localStorage.getItem('in-wiki-lang')}catch(e){return null}},set(v){try{localStorage.setItem('in-wiki-lang',v)}catch(e){}}};
@@ -118,7 +118,7 @@ function machine(p){const n=byId.get(p.machine);
   <h3 class="sec">${T('Receita / lote')}</h3><p class="body">${esc(n.recipe)}</p><h3 class="sec">${T('Como funciona')}</h3><p class="body">${esc(n.info)}</p>
   <div class="clear"></div><h3 class="sec">${T('Entradas e saídas')}</h3><section id="in-progress" data-manual></section>`;}
 function topic(p){return `${crumb(p)}<h2 class="title">${esc(p.title)}${tagChip(p.tag)}</h2><p class="lead">${esc(p.lead)}</p><section id="in-progress" data-manual></section>${text(p.text)}${refs(p.refs)}`;}
-function catalog(p){return `${crumb(p)}<h2 class="title">${esc(p.title)}</h2><p class="lead">${T('Tudo o que existe ou está previsto na linha de purificação, do mesmo banco de dados do mapa. Valores provisórios até o balanceamento.')}</p>
+function catalog(p){return `${crumb(p)}<h2 class="title">${esc(p.title)}</h2><p class="lead">${T('Tudo o que existe ou está previsto, do mesmo banco de dados dos mapas. Valores provisórios até o balanceamento.')}</p>
   <div class="filters"><input type="search" placeholder="${T('Buscar…')}" aria-label="${T('Buscar no catálogo')}"><span>${['Todos',...STATUS,'IE'].map((s,i)=>`<button data-st="${i?s:''}"${i?'':' class="on"'}>${esc(T(s))}</button>`).join('')}</span></div><div id="cat"></div>`;}
 
 let map=null;
@@ -138,7 +138,8 @@ function render(){const id=(location.hash.match(/^#\/([\w-]+)/)||[])[1]||'inicio
   document.title=(p.home?'':p.title+' · ')+'Immersive Nuclear wiki';window.scrollTo(0,0);document.body.classList.remove('menu');}
 function catalogFilter(main){const out=main.querySelector('#cat'),input=main.querySelector('input');let st='';
   const norm=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
-  const draw=()=>{const q=norm(input.value);const list=G.nodes.filter(n=>!ieMachine(n)&&!n.alias&&(!st||n.status===st||(st==='IE'&&n.status==='Vanilla'))&&norm(n.name+' '+n.recipe+' '+n.info).includes(q));
+  const wip=pageById.get('automacao').graph.plan.nodes.filter(n=>n.status==='Em produção');
+  const draw=()=>{const q=norm(input.value);const list=[...G.nodes,...wip].filter(n=>!ieMachine(n)&&!n.alias&&(!st||n.status===st||(st==='IE'&&n.status==='Vanilla'))&&norm(n.name+' '+n.recipe+' '+n.info).includes(q));
     out.innerHTML=list.length?cards(list):`<p class="body">${T('Nada encontrado.')}</p>`;out.querySelectorAll('canvas').forEach(c=>IN_RENDER_MODEL(c,c.dataset.model));};
   input.oninput=draw;main.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{st=b.dataset.st;main.querySelectorAll('[data-st]').forEach(x=>x.classList.toggle('on',x===b));draw();});draw();}
 
