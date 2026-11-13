@@ -4,7 +4,7 @@
    code yet), 'Previsto' (planned, details open), 'Em aberto' (undecided); 'IE' and 'Vanilla' are outside the mod.
    Quantities are game design values, not real chemical procedures. */
 window.IN_GRAPH={width:2820,height:2000,nodes:[],edges:[],
-  meta:{version:'0.1.0',next:'0.2.0',updated:'09/11/2026'}};
+  meta:{version:'0.1.0',next:'0.2.0',updated:'13/11/2026'}};
 (()=>{const g=IN_GRAPH;
 const n=(id,name,x,y,kind,img,recipe,info,status='Previsto',extra={})=>g.nodes.push({id,name,x,y,kind,img,recipe,info,status,...extra});
 const item=(id,name,x,y,img,recipe,info,status='Registrado',extra={})=>n(id,name,x,y,'item',img,recipe,info,status,extra);
@@ -99,7 +99,7 @@ item('drumA','Tambor de concentrado',1130,1720,'x64/tambor-concentrado-icone-v2.
 m('conv','Unidade de Conversão',1130,1520,'Yellowcake (em tambores) + ácido fluorídrico (~6 partes) + hidrogênio → hexafluoreto natural + efluente fluoretado (+ cinza de fluoração de vez em quando).','A primeira máquina do enriquecimento. Faz o próprio flúor de parte do ácido.','No jogo',{...L2,model:'conv'});
 n('uf6n','Hexafluoreto natural',1340,1520,'fluid','fluidos/uranium_hexafluoride_still.png','Saída da conversão → Unidade de Enriquecimento.','UF₆ com a proporção natural de urânio-235. Lilás claro ao branco, com cristais hexagonais.','No jogo',L2);
 m('enr','Unidade de Enriquecimento',1550,1520,'Hexafluoreto natural → hexafluoreto enriquecido (baixo, médio ou alto) + hexafluoreto empobrecido.','Cascata de centrífugas em três montagens: 2 bancos fazem o baixo, 4 o médio e 6 o alto. Só entra hexafluoreto natural.','No jogo',{...L2,model:'enr2'});
-m('deconv','Unidade de Desconversão',1970,1720,'Hexafluoreto empobrecido + vapor → óxido de urânio empobrecido + ácido fluorídrico.','O vapor quebra o hexafluoreto no reator vertical: o óxido sai em pó pela rosca, e o ácido fluorídrico volta para a Unidade de Conversão.','Em produção',{...L2,model:'deconv'});
+m('deconv','Unidade de Desconversão',1970,1720,'400 mB de hexafluoreto empobrecido + 400 mB de vapor → 1 óxido de urânio empobrecido + 250 mB de ácido fluorídrico (10 s, 96 IF/t).','O vapor quebra o hexafluoreto no reator de hidrólise; o pó passa pelo forno rotativo, aquecido pelo forno elétrico, e sai como óxido estável, e o ácido fluorídrico volta para a Unidade de Conversão.','No jogo',{...L2,model:'deconv'});
 n('uf6d','Hexafluoreto empobrecido',1760,1520,'fluid','fluidos/depleted_uranium_hexafluoride_still.png','Rejeito do enriquecimento.','Pouco urânio-235; vai para a Desconversão.','No jogo',L2);
 g.nodes.filter(x=>['sacid','steam','hf'].includes(x.id)).forEach(x=>x.line=2);
 e('sulfurA','acidUnit','supply');e('waterA','acidUnit','supply');e('acidUnit','sacid');e('acidUnit','steam','waste','',[[300,1585],[300,1640],[440,1640],[440,1720],[458,1720]]);
