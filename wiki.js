@@ -47,11 +47,15 @@ function subset(src,ids,lanes=[]){const set=new Set(ids),nodes=src.nodes.filter(
   return {meta:src.meta,width:Math.ceil(x1-x0+60),height:Math.ceil(y1-y0+60+top),nodes:nodes.map(n=>({...n,x:n.x+dx,y:n.y+dy})),edges:edges.map(e=>({...e,via:e.via&&e.via.map(mv)})),
     lanes:ls.map(([, text,lo,hi])=>[Math.max(8,Math.min(...nodes.filter(n=>n.y>=lo&&n.y<hi).map(n=>n.y))+dy-(nodes.some(n=>n.y>=lo&&n.y<hi&&n.kind==='machine')?112:100)),T(text)])};}
 // A machine with what goes in on the left and what comes out on the right
-function around(id){const m=byId.get(id),ins=[],outs=[],types=new Map();
-  G.edges.forEach(e=>{if(e.b===id&&!ins.includes(e.a)){ins.push(e.a);types.set(e.a,e.type);}});
-  G.edges.forEach(e=>{if(e.a===id&&!outs.includes(e.b)&&!ins.includes(e.b)){outs.push(e.b);types.set(e.b,e.type);}});
+// A machine's node: in the graph of the topic that draws it (the line 2 topics have their own, with the machines not in
+// the game yet), or else in the progress map
+function srcOf(id){const q=pages.find(q=>q.graph&&q.graph.plan&&q.graph.plan.nodes.some(n=>n.id===id));return q?q.graph.plan:G;}
+const nodeOf=id=>srcOf(id).nodes.find(n=>n.id===id)||byId.get(id);
+function around(id){const src=srcOf(id),bi=new Map(src.nodes.map(n=>[n.id,n])),m=bi.get(id),ins=[],outs=[],types=new Map();
+  src.edges.forEach(e=>{if(e.b===id&&!ins.includes(e.a)){ins.push(e.a);types.set(e.a,e.type);}});
+  src.edges.forEach(e=>{if(e.a===id&&!outs.includes(e.b)&&!ins.includes(e.b)){outs.push(e.b);types.set(e.b,e.type);}});
   const STEP=170,rows=Math.max(1,ins.length,outs.length),H=rows*STEP+40,my=H/2,MX=500,nodes=[{...m,x:MX,y:my}],edges=[];
-  const side=(list,x,dir)=>list.forEach((nid,i)=>{const y=my+(i-(list.length-1)/2)*STEP,k=(i-(list.length-1)/2)*Math.min(18,80/list.length),n=byId.get(nid);nodes.push({...n,x,y});
+  const side=(list,x,dir)=>list.forEach((nid,i)=>{const y=my+(i-(list.length-1)/2)*STEP,k=(i-(list.length-1)/2)*Math.min(18,80/list.length),n=bi.get(nid);nodes.push({...n,x,y});
     const near=dir<0?x+(n.kind==='machine'?85:52):x-(n.kind==='machine'?85:52),bend=MX+dir*190,edge=MX+dir*85;
     const via=Math.abs(y-my)<5?[[near,y],[edge,my]]:[[near,y],[bend,y],[bend,my+k],[edge,my+k]];
     edges.push(dir<0?{a:nid,b:id,type:types.get(nid),via}:{a:id,b:nid,type:types.get(nid),via:via.reverse()});});
@@ -111,7 +115,7 @@ function home(){const h=LANG==='en'&&EN.home?{...W.home,...EN.home}:W.home,meta=
   <h3 class="sec">${T('Progresso')}</h3><p class="body">${T('Versão')} ${esc(meta.version)} · ${T('próxima')}: ${esc(LANG==='en'?T(meta.next):clean(meta.next))} · ${T('atualizado em')} ${esc(meta.updated)}</p>${progress()}
   <h3 class="sec">${T('O que o mod traz')}</h3><div class="feat">${h.features.map(([t,d])=>`<div><h4>${esc(t)}</h4>${esc(d)}</div>`).join('')}</div>
   <h3 class="sec">${T('Tópicos')}</h3><div class="kids">${pages.filter(p=>!p.parent&&!p.home).map(p=>`<a href="#/${p.id}">${esc(p.title)}${tagChip(p.tag)}</a>`).join('')}</div>`;}
-function machine(p){const n=byId.get(p.machine);
+function machine(p){const n=nodeOf(p.machine);
   return `${crumb(p)}<aside class="infobox"><div class="ib-model">${n.model?`<canvas width="520" height="360" aria-label="${T('Modelo 3D. Arraste para girar.')}"></canvas><button class="turn">${T('Girar 90°')}</button>`:n.concept?`<img src="${encodeURI(src(n.concept))}" alt="${T('Conceito')}" ${gone}>`:'<span class="q">⚙</span>'}</div>
     <table><tr><th colspan="2">${esc(p.title)}</th></tr><tr><td>${T('Situação')}</td><td>${statusChip(n.status)}</td></tr>${(p.facts||[]).map(([k,v])=>`<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join('')}</table></aside>
   <h2 class="title">${esc(p.title)}${tagChip(p.tag)}</h2><p class="lead">${esc(p.lead)}</p>
@@ -129,7 +133,7 @@ function render(){const id=(location.hash.match(/^#\/([\w-]+)/)||[])[1]||'inicio
   if(g&&host){const fitZoom=Math.min(1,(host.clientWidth-8)/g.width),link=n=>n.kind==='machine'&&machinePage.get(n.id)&&machinePage.get(n.id)!==p?'#/'+machinePage.get(n.id).id:null;
     map=IN_MAP_MOUNT(host,g,g.full?{base:BASE,catalog:CATALOG,t:T,title:T('Organograma da purificação'),intro:T('Explore os processos do Immersive Nuclear. Passe o mouse para ver a receita; clique para fixar os detalhes.'),lanes:g.lanes,views:VIEWS.map(v=>({...v,label:T(v.label)})),link}:{base:BASE,catalog:CATALOG,t:T,title:T(p.machine?'Entradas e saídas':'Organograma'),
       intro:T('Passe o mouse para ver a receita; clique para fixar os detalhes.'),lanes:g.lanes,views:[],start:null,height:Math.round(Math.min(630,Math.max(230,g.height*fitZoom+6))),link});}
-  if(p.machine){const n=byId.get(p.machine),cv=main.querySelector('.infobox canvas');if(cv)IN_SPIN_MODEL(cv,n.model,main.querySelector('.turn'));}
+  if(p.machine){const n=nodeOf(p.machine),cv=main.querySelector('.infobox canvas');if(cv)IN_SPIN_MODEL(cv,n.model,main.querySelector('.turn'));}
   if(g&&!p.home)main.insertAdjacentHTML('beforeend',(p.hazardTable?hazardTable(p.hazardTable):'')+(p.noCards?'':cards(g.nodes))+(p.links||[]).map(([to,t])=>`<p class="body"><a href="#/${to}">${esc(t)} →</a></p>`).join('')+children(p));
   if(p.catalog)catalogFilter(main);
   main.querySelectorAll('.card canvas').forEach(c=>IN_RENDER_MODEL(c,c.dataset.model));
@@ -154,7 +158,7 @@ function langSwitch(){let box=document.querySelector('.lang');
 // Grouped by 'group' (top-level topics), each topic with its one-line 'desc'; inside a topic the pages are grouped by
 // 'section'. A coloured square tells the status, an icon the kind of page (machine, overview). The current branch opens.
 const TAG_STATUS={'concluída':'No jogo','em produção':'No jogo','em desenvolvimento':'Definido','previsto':'Previsto','em aberto':'Em aberto'},opened=new Set();
-const pageStatus=p=>p.machine?byId.get(p.machine).status:p.tag?TAG_STATUS[p.tag]:p.parent?pageStatus(pageById.get(p.parent)):null;
+const pageStatus=p=>p.machine?nodeOf(p.machine).status:p.tag?TAG_STATUS[p.tag]:p.parent?pageStatus(pageById.get(p.parent)):null;
 const dot=p=>{const st=pageStatus(p);return st?`<span class="dot st-${slug(st)}" title="${esc(T(st))}"></span>`:'';};
 const label=p=>esc(p.short||p.title);
 function menu(cur){const nav=document.querySelector('nav.side'),root=q=>q.parent?root(pageById.get(q.parent)):q;if(cur&&cur.id!==menu.last){opened.add(root(cur).id);menu.last=cur.id;}
