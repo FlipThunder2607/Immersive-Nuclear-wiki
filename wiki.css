@@ -23,7 +23,7 @@ nav.side .t-txt{display:flex;flex-direction:column;min-width:0}
 nav.side .t-txt b{font-size:13px;font-weight:bold}
 nav.side .t-txt small{font-size:10.5px;color:var(--dim);line-height:1.35}
 nav.side .t-link .dot{margin-top:4px}
-nav.side .tog{width:28px;background:none;border:0;color:var(--dim);cursor:pointer;font-size:12px}
+nav.side .tog{width:38px;flex:none;background:none;border:0;color:var(--dim);cursor:pointer;font-size:15px;touch-action:manipulation}
 nav.side .tog:hover{color:var(--title)}
 nav.side .t-kids{margin:2px 0 8px 13px;padding-left:8px;border-left:2px solid #4b4d52}
 nav.side .sub{margin:8px 0 2px 6px;font-size:9.5px;letter-spacing:1px;text-transform:uppercase;color:#8d9097}

@@ -13,11 +13,13 @@ const textures=new Map();
 function loadModel(id){if(!textures.has(id)){const m=IN_MODELS[id];textures.set(id,Promise.all(m.textures.map(src=>new Promise(resolve=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=()=>resolve(null);im.src=src;}))));}return textures.get(id);}
 // Drawing a model face by face costs a lot (thousands of clipped, transformed images), so each picture is drawn once:
 // kept in memory (shots), in the browser's storage for the next visits (only the still views), and the drawing of the
-// ones not ready yet waits in a queue, one model per frame, so a page shows at once and the models come in after it.
+// ones not ready yet waits in a queue and is done in slices of a few milliseconds per frame, so a page shows at once,
+// the menu and the links answer at once, and the models come in after it.
 const shots=new Map(),queue=[];let pumping=false;
 const shotKey=(id,W,H,yaw)=>'inm|'+id+'|'+(IN_MODELS[id].quads.length)+'|'+W+'x'+H+'|'+yaw.toFixed(3);
 function paint(canvas,pic){const ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(pic,0,0);canvas.dataset.rendered='true';}
-function pump(){if(pumping)return;const job=queue.shift();if(!job)return;pumping=true;requestAnimationFrame(()=>{try{job();}finally{pumping=false;pump();}});}
+function pump(){if(pumping||!queue.length)return;pumping=true;requestAnimationFrame(()=>{pumping=false;const job=queue[0];let done=true;try{done=job();}catch(e){done=true;}if(done)queue.shift();pump();});}
+// drawModel returns step(ms): draws the next faces for about that long and answers whether the picture is finished
 function drawModel(target,model,images,yaw,id){const ctx=target.getContext('2d'),W=target.width,H=target.height;ctx.clearRect(0,0,W,H);ctx.imageSmoothingEnabled=false;
 // Our machines come from Blockbench with the front on -Z: turned half round so they face the viewer, like IE's.
 // The Metal Extractor was modelled facing the other way (front on +Z), so it already does.
@@ -27,20 +29,22 @@ const proj=p=>{const x=p[0]*cy-p[2]*sy,z=p[0]*sy+p[2]*cy;return [x,-p[1]*cp+z*sp
 let xmin=Infinity,xmax=-Infinity,ymin=Infinity,ymax=-Infinity;
 const faces=model.quads.map(q=>{const pts=q.p.map(proj);pts.forEach(p=>{xmin=Math.min(xmin,p[0]);xmax=Math.max(xmax,p[0]);ymin=Math.min(ymin,p[1]);ymax=Math.max(ymax,p[1]);});return {q,pts,z:pts.reduce((a,p)=>a+p[2],0)/4};}).sort((a,b)=>a.z-b.z);
 const scale=Math.min((W-18)/(xmax-xmin),(H-16)/(ymax-ymin)),ox=(W-(xmax-xmin)*scale)/2-xmin*scale,oy=(H-(ymax-ymin)*scale)/2-ymin*scale;
-for(const {q,pts} of faces){const im=images[q.t];if(!im)continue;const p=pts.map(v=>[ox+v[0]*scale,oy+v[1]*scale]);const u=q.uv.map(v=>[v[0]*im.width,v[1]*im.height]);const ux=u[1][0]-u[0][0],uy=u[1][1]-u[0][1],vx=u[3][0]-u[0][0],vy=u[3][1]-u[0][1],det=ux*vy-uy*vx;if(Math.abs(det)<1e-8)continue;
+let next=0;return ms=>{const end=performance.now()+ms;while(next<faces.length){if(next%32===0&&performance.now()>end)return false;const {q,pts}=faces[next++];const im=images[q.t];if(!im)continue;const p=pts.map(v=>[ox+v[0]*scale,oy+v[1]*scale]);const u=q.uv.map(v=>[v[0]*im.width,v[1]*im.height]);const ux=u[1][0]-u[0][0],uy=u[1][1]-u[0][1],vx=u[3][0]-u[0][0],vy=u[3][1]-u[0][1],det=ux*vy-uy*vx;if(Math.abs(det)<1e-8)continue;
 const ax=p[1][0]-p[0][0],ay=p[1][1]-p[0][1],bx=p[3][0]-p[0][0],by=p[3][1]-p[0][1];const A=(ax*vy-bx*uy)/det,B=(ay*vy-by*uy)/det,C=(bx*ux-ax*vx)/det,D=(by*ux-ay*vx)/det;
 ctx.save();ctx.beginPath();p.forEach((v,i)=>i?ctx.lineTo(...v):ctx.moveTo(...v));ctx.closePath();ctx.clip();ctx.setTransform(A,B,C,D,p[0][0]-A*u[0][0]-C*u[0][1],p[0][1]-B*u[0][0]-D*u[0][1]);ctx.drawImage(im,0,0);ctx.restore();}
-}
+return true;};}
 function renderModel(canvas,id,yaw=-.78,live=false){const model=IN_MODELS[id];if(!model)return;const W=canvas.width,H=canvas.height,key=shotKey(id,W,H,yaw);
 if(shots.has(key)){paint(canvas,shots.get(key));return;}
 // dragging: drawn straight away, not kept (every angle would be a new picture)
-if(live){loadModel(id).then(images=>{if(canvas.isConnected){drawModel(canvas,model,images,yaw,id);canvas.dataset.rendered='true';}});return;}
+if(live){loadModel(id).then(images=>{if(canvas.isConnected){drawModel(canvas,model,images,yaw,id)(Infinity);canvas.dataset.rendered='true';}});return;}
 let stored=null;try{stored=localStorage.getItem(key);}catch(e){}
 if(stored){const im=new Image();im.onload=()=>{shots.set(key,im);if(canvas.isConnected)paint(canvas,im);};im.src=stored;return;}
-loadModel(id).then(images=>{queue.push(()=>{if(shots.has(key)){if(canvas.isConnected)paint(canvas,shots.get(key));return;}
-  const off=document.createElement('canvas');off.width=W;off.height=H;drawModel(off,model,images,yaw,id);shots.set(key,off);
-  if(W<=300)try{localStorage.setItem(key,off.toDataURL());}catch(e){}   // the small ones; the big infobox views stay in memory only
-  if(canvas.isConnected)paint(canvas,off);});pump();});}
+loadModel(id).then(images=>{let off=null,step=null;queue.push(()=>{if(shots.has(key)){if(canvas.isConnected)paint(canvas,shots.get(key));return true;}
+  if(!step&&!canvas.isConnected)return true;   // its page was left before it began: the next visit asks again
+  if(!step){off=document.createElement('canvas');off.width=W;off.height=H;step=drawModel(off,model,images,yaw,id);}
+  if(!step(8))return false;
+  shots.set(key,off);if(W<=300)try{localStorage.setItem(key,off.toDataURL());}catch(e){}   // the small ones; the big infobox views stay in memory only
+  if(canvas.isConnected)paint(canvas,off);return true;});pump();});}
 // Drag (or the turn button) rotates a model canvas
 function spinModel(canvas,id,button){let angle=-.78,px=null;renderModel(canvas,id,angle);if(button)button.onclick=()=>{angle+=Math.PI/2;renderModel(canvas,id,angle)};canvas.onpointerdown=e=>{px=e.clientX;canvas.setPointerCapture(e.pointerId)};canvas.onpointermove=e=>{if(px!==null){angle+=(e.clientX-px)/110;px=e.clientX;renderModel(canvas,id,angle,true)}};canvas.onpointerup=canvas.onpointercancel=()=>px=null;}
 function mount(host,G,options={}){const o={...GUIDE,...options},byId=new Map(G.nodes.map(n=>[n.id,n]));let zoom=.65,pinned=false,selected=null,hideTimer;
