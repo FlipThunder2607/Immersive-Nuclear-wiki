@@ -142,7 +142,11 @@ function render(){const id=(location.hash.match(/^#\/([\w-]+)/)||[])[1]||'inicio
   document.title=(p.home?'':p.title+' · ')+'Immersive Nuclear wiki';window.scrollTo(0,0);document.body.classList.remove('menu');}
 function catalogFilter(main){const out=main.querySelector('#cat'),input=main.querySelector('input');let st='';
   const norm=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
-  const wip=['automacao','modulos','enriquecimento'].flatMap(id=>pageById.get(id).graph.plan.nodes).filter(n=>n.status==='Em produção'&&n.id!=='pmod'&&!byId.has(n.id));
+  // the planned topics' own things (not IE's, not the map's), each name once
+  const seenName=new Set(G.nodes.map(n=>n.name.toLowerCase()));
+  const wip=['automacao','modulos','enriquecimento','suprimentos','combustivel','reator'].flatMap(id=>pageById.get(id).graph.plan.nodes)
+    .filter(n=>['Em produção','Definido','No jogo','Registrado'].includes(n.status)&&n.id!=='pmod'&&!byId.has(n.id)&&!n.alias)
+    .filter(n=>{const k=n.name.toLowerCase();if(seenName.has(k))return false;seenName.add(k);return true;});
   const draw=()=>{const q=norm(input.value);const list=[...G.nodes,...wip].filter(n=>!ieMachine(n)&&!n.alias&&(!st||n.status===st||(st==='IE'&&n.status==='Vanilla'))&&norm(n.name+' '+n.recipe+' '+n.info).includes(q));
     out.innerHTML=list.length?cards(list):`<p class="body">${T('Nada encontrado.')}</p>`;out.querySelectorAll('canvas').forEach(c=>IN_RENDER_MODEL(c,c.dataset.model));};
   input.oninput=draw;main.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{st=b.dataset.st;main.querySelectorAll('[data-st]').forEach(x=>x.classList.toggle('on',x===b));draw();});draw();}
@@ -157,7 +161,7 @@ function langSwitch(){let box=document.querySelector('.lang');
 // ---------- side menu ----------
 // Grouped by 'group' (top-level topics), each topic with its one-line 'desc'; inside a topic the pages are grouped by
 // 'section'. A coloured square tells the status, an icon the kind of page (machine, overview). The current branch opens.
-const TAG_STATUS={'concluída':'No jogo','em produção':'No jogo','em desenvolvimento':'Definido','previsto':'Previsto','em aberto':'Em aberto'},opened=new Set();
+const TAG_STATUS={'concluída':'No jogo','em produção':'No jogo','em desenvolvimento':'Definido','definido':'Definido','previsto':'Previsto','em aberto':'Em aberto'},opened=new Set();
 const pageStatus=p=>p.machine?nodeOf(p.machine).status:p.tag?TAG_STATUS[p.tag]:p.parent?pageStatus(pageById.get(p.parent)):null;
 const dot=p=>{const st=pageStatus(p);return st?`<span class="dot st-${slug(st)}" title="${esc(T(st))}"></span>`:'';};
 const label=p=>esc(p.short||p.title);
