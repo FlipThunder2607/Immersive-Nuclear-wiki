@@ -5,7 +5,10 @@
 const W=IN_WIKI,EN=window.IN_WIKI_EN||{},BASE='recursos/itens-e-fluidos/',CATALOG=null;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const slug=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/\s+/g,'-');
-const STATUS=['No jogo','Em produção','Registrado','Definido','Previsto','Em aberto'];
+const STATUS=['A refazer','No jogo','Em produção','Registrado','Definido','Previsto','Em aberto'];
+// What each colour means (the user, 16/11/2026): green only when it works in the game; blue exists in the game but does not
+// work yet; yellow decided but not in the game; grey a possibility; red nothing decided
+const MEANING={'No jogo':'Funciona no jogo','A refazer':'Funciona no jogo, mas vai ser refeito','Em produção':'Sendo feito agora','Registrado':'Existe no jogo, mas ainda não funciona','Definido':'Já decidido, mas ainda não está no jogo','Previsto':'Uma possibilidade, ainda não decidida','Em aberto':'Nada definido ainda'};
 
 // ---------- language ----------
 const store={get(){try{return localStorage.getItem('in-wiki-lang')}catch(e){return null}},set(v){try{localStorage.setItem('in-wiki-lang',v)}catch(e){}}};
@@ -32,7 +35,8 @@ function build(){
     if(p.graph&&p.graph.plan){const pe=(EN.plan||{})[p.id]||{};q.graph={...p.graph,plan:{...p.graph.plan,nodes:p.graph.plan.nodes.map(n=>tr(n,pe[n.id]))}};}
     if(p.hazardTable&&LANG==='en'&&EN.hzTable)q.hazardTable=p.hazardTable.map((r,i)=>EN.hzTable[i]?[EN.hzTable[i][0],...r.slice(1,6),EN.hzTable[i][1]]:r);
     return q;});
-  pageById=new Map(pages.map(p=>[p.id,p]));machinePage=new Map(pages.filter(p=>p.machine).map(p=>[p.machine,p]));}
+  pageById=new Map(pages.map(p=>[p.id,p]));machinePage=new Map(pages.filter(p=>p.machine).map(p=>[p.machine,p]));
+  pages.filter(p=>p.stationOf).forEach(p=>p.stationOf.forEach(id=>machinePage.set(id,p)));}
 
 // ---------- graphs ----------
 // Shortcuts of the purification map (as in the guide)
@@ -97,7 +101,7 @@ function cards(nodes,short){const groups=[['Máquinas do mod',n=>n.kind==='machi
 // A status bar with its legend: how many steps are in each status, and the share already in the game
 function bar(own,cls='bar'){const done=own.filter(n=>n.status==='No jogo').length;
   return `<div class="${cls}" role="img" aria-label="${done} / ${own.length}">${STATUS.map(s=>{const k=own.filter(n=>n.status===s).length;return k?`<span class="st-${slug(s)}" style="flex:${k}" title="${esc(T(s))}: ${k}"></span>`:''}).join('')}</div>`;}
-const pct=own=>own.length?Math.round(100*own.filter(n=>n.status==='No jogo').length/own.length):0;
+const pct=own=>own.length?Math.round(100*own.filter(n=>n.status==='No jogo'||n.status==='A refazer').length/own.length):0;
 // Every topic's own steps: the nodes of its graphs (the purification's from the map, the others from their plans).
 // IE and vanilla are left out, and so are the contamination leaves, which only point at materials counted elsewhere.
 // A step that shows up in two topics (the yellowcake, the reactor...) counts once, in the first.
@@ -154,7 +158,7 @@ function catalogFilter(main){const out=main.querySelector('#cat'),input=main.que
   // the planned topics' own things (not IE's, not the map's), each name once
   const seenName=new Set(G.nodes.map(n=>n.name.toLowerCase()));
   const wip=['automacao','modulos','enriquecimento','suprimentos','combustivel','reator'].flatMap(id=>pageById.get(id).graph.plan.nodes)
-    .filter(n=>['Em produção','Definido','No jogo','Registrado'].includes(n.status)&&n.id!=='pmod'&&!byId.has(n.id)&&!n.alias)
+    .filter(n=>['Em produção','Definido','No jogo','A refazer','Registrado'].includes(n.status)&&n.id!=='pmod'&&!byId.has(n.id)&&!n.alias)
     .filter(n=>{const k=n.name.toLowerCase();if(seenName.has(k))return false;seenName.add(k);return true;});
   const draw=()=>{const q=norm(input.value);const ours=n=>n.status!=='IE'&&n.status!=='Vanilla'&&!/•\s*(IE|Vanilla)$/i.test(n.name);
     const list=[...G.nodes,...wip].filter(n=>ours(n)&&!ieMachine(n)&&!n.alias&&(!st||n.status===st)&&norm(n.name+' '+n.recipe+' '+n.info).includes(q));
@@ -176,7 +180,7 @@ const pageStatus=p=>p.machine?nodeOf(p.machine).status:p.tag?TAG_STATUS[p.tag]:p
 const dot=p=>{const st=pageStatus(p);return st?`<span class="dot st-${slug(st)}" title="${esc(T(st))}"></span>`:'';};
 const label=p=>esc(p.short||p.title);
 function menu(cur){const nav=document.querySelector('nav.side'),root=q=>q.parent?root(pageById.get(q.parent)):q;if(cur&&cur.id!==menu.last){opened.add(root(cur).id);menu.last=cur.id;}
-  const kid=k=>`<a class="k${k===cur?' on':''}" href="#/${k.id}" title="${esc(k.title)}"><span class="ico">${k.machine?'⚙':'◇'}</span><span class="k-txt">${label(k)}</span>${dot(k)}</a>`;
+  const kid=k=>`<a class="k${k===cur?' on':''}" href="#/${k.id}" title="${esc(k.title)}"><span class="ico">${k.machine||k.icon==='machine'?'⚙':'◇'}</span><span class="k-txt">${label(k)}</span>${dot(k)}</a>`;
   const topic=t=>{const kids=pages.filter(q=>q.parent===t.id),open=opened.has(t.id),secs=[...new Set(kids.map(k=>k.section||''))];
     return `<div class="topic${open?' open':''}${t===cur?' on':''}"><div class="t-row"><a class="t-link" href="#/${t.id}">${dot(t)}<span class="t-txt"><b>${label(t)}</b>${t.desc?`<small>${esc(t.desc)}</small>`:''}</span></a>${kids.length?`<button class="tog" type="button" data-id="${t.id}" aria-expanded="${open}" aria-label="${T(open?'Fechar':'Abrir')} ${esc(t.title)}">${open?'▾':'▸'}</button>`:''}</div>
       ${kids.length&&open?`<div class="t-kids">${secs.map(sec=>`${sec?`<div class="sub">${esc(T(sec))}</div>`:''}${kids.filter(k=>(k.section||'')===sec).map(kid).join('')}`).join('')}</div>`:''}</div>`;};
@@ -184,7 +188,7 @@ function menu(cur){const nav=document.querySelector('nav.side'),root=q=>q.parent
   nav.innerHTML=`<a class="brand" href="#/inicio"><h1>Immersive Nuclear</h1></a><div class="ver">${T('Addon do Immersive Engineering')} · ${esc(G.meta.version)}</div>
     <a class="home${cur&&cur.home?' on':''}" href="#/inicio"><span class="ico">⌂</span>${T('Início')}</a>
     ${groups.map(g=>`<div class="grp">${esc(T(g))}</div>${pages.filter(q=>q.group===g).map(topic).join('')}`).join('')}
-    <div class="side-key">${['No jogo','Previsto','Em aberto'].map(st=>`<span><span class="dot st-${slug(st)}"></span>${esc(T(st))}</span>`).join('')}<span><span class="ico">⚙</span>${T('máquina')}</span><span><span class="ico">◇</span>${T('visão geral')}</span></div>`;
+    <div class="side-key">${STATUS.map(st=>`<span title="${esc(T(MEANING[st]))}"><span class="dot st-${slug(st)}"></span>${esc(T(st))}</span>`).join('')}<span><span class="ico">⚙</span>${T('máquina')}</span><span><span class="ico">◇</span>${T('visão geral')}</span></div>`;
   nav.querySelectorAll('.tog').forEach(b=>b.onclick=()=>{const id=b.dataset.id;opened.has(id)?opened.delete(id):opened.add(id);menu(cur);});}
 document.querySelector('.menu-btn').onclick=()=>document.body.classList.toggle('menu');
 // The side menu's width: drag its right edge (the user: with many topics open it got narrow); kept for the next visit
