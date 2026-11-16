@@ -61,7 +61,7 @@ function around(id){const src=srcOf(id),bi=new Map(src.nodes.map(n=>[n.id,n])),m
     edges.push(dir<0?{a:nid,b:id,type:types.get(nid),via}:{a:id,b:nid,type:types.get(nid),via:via.reverse()});});
   side(ins,130,-1);side(outs,870,1);
   return {meta:G.meta,width:1000,height:H,nodes,edges,lanes:[]};}
-function graphOf(p){const g=p.graph;if(p.machine)return around(p.machine);if(!g)return null;
+function graphOf(p){const g=p.graph;if(p.machine)return around(p.machine);if(!g||p.noChart)return null;
   // The purification chart: the whole map but the start of line 2 (line:2), which has its own pages
   if(g.all){const keep=new Set(G.nodes.filter(n=>n.line!==2).map(n=>n.id));
     return {...G,height:1420,nodes:G.nodes.filter(n=>keep.has(n.id)),edges:G.edges.filter(e=>keep.has(e.a)&&keep.has(e.b)),lanes:LANES.map(l=>[l[0],T(l[1])]),full:true};}
@@ -82,12 +82,18 @@ const gone=`onerror="this.outerHTML='<span class=q>⚙</span>'"`;
 function icon(n){if(n.model)return `<canvas width="120" height="80" data-model="${n.model}" aria-label="${T('Modelo 3D de')} ${esc(n.name)}"></canvas>`;
   if(n.kind==='fluid'&&n.img)return `<span class="fl" style="background-image:url('${encodeURI(src(n.img))}')"></span>`;
   if(n.img||n.concept)return `<img src="${encodeURI(src(n.img||n.concept))}" alt="" ${gone}>`;return `<span class="q">${n.glyph?esc(n.glyph):n.kind==='machine'?'⚙':'?'}</span>`;}
-function card(n){const page=n.kind==='machine'&&machinePage.get(n.id),tag=page?'a':'div';
+// The first sentence of a text (the catalog's machines: one short line each, the user 15/11/2026)
+const firstSentence=t=>{const s=String(t||'').trim(),m=s.match(/^.*?[.!?](\s|$)/);return m?m[0].trim():s;};
+function card(n,short){const page=n.kind==='machine'&&machinePage.get(n.id),tag=page?'a':'div';
+  if(short&&n.kind==='machine')return `<${tag} class="card${page?' link':''}"${page?` href="#/${page.id}"`:''}><span class="ic">${icon(n)}</span><div><h4>${esc(n.name)}</h4>${statusChip(n.status)}<p>${esc(firstSentence(page&&page.lead||n.info||n.recipe))}</p></div></${tag}>`;
   return `<${tag} class="card${page?' link':''}"${page?` href="#/${page.id}"`:''}><span class="ic">${icon(n)}</span><div><h4>${esc(n.name)}</h4>${statusChip(n.status)}<p>${esc(n.recipe)}</p>${n.info&&n.info!==n.recipe?`<p class="more">${esc(n.info)}</p>`:''}</div></${tag}>`;}
 // IE machines (and our recipes run in them, named "... • IE") only show in the organograms, never as cards or in the catalog
 const ieMachine=n=>n.kind==='machine'&&(n.status==='IE'||/•\s*IE$/.test(n.name));
-function cards(nodes){const groups=[['Máquinas do mod',n=>n.kind==='machine'&&!ieMachine(n)],['Itens',n=>n.kind==='item'&&!n.alias],['Fluidos',n=>n.kind==='fluid']];
-  return groups.map(([title,f])=>{const list=nodes.filter(f);return list.length?`<h3 class="sec">${T(title)}</h3><div class="cards">${list.map(card).join('')}</div>`:'';}).join('');}
+function cards(nodes,short){const groups=[['Máquinas do mod',n=>n.kind==='machine'&&!ieMachine(n)],['Itens',n=>n.kind==='item'&&!n.alias],['Fluidos',n=>n.kind==='fluid']];
+  return groups.map(([title,f])=>{let list=nodes.filter(f);
+    // the catalog: one card per machine (the same machine drawn twice on the map, as the filter press, shows once)
+    if(short){const seen=new Set();list=list.filter(n=>{if(n.kind!=='machine')return true;const k=n.model||n.img||n.concept||n.name;if(seen.has(k))return false;seen.add(k);return true;});}
+    return list.length?`<h3 class="sec">${T(title)}</h3><div class="cards">${list.map(n=>card(n,short)).join('')}</div>`:'';}).join('');}
 // A status bar with its legend: how many steps are in each status, and the share already in the game
 function bar(own,cls='bar'){const done=own.filter(n=>n.status==='No jogo').length;
   return `<div class="${cls}" role="img" aria-label="${done} / ${own.length}">${STATUS.map(s=>{const k=own.filter(n=>n.status===s).length;return k?`<span class="st-${slug(s)}" style="flex:${k}" title="${esc(T(s))}: ${k}"></span>`:''}).join('')}</div>`;}
@@ -100,7 +106,9 @@ function topicSteps(){const seen=new Set(),out=[];
   pages.filter(p=>!p.parent&&!p.home&&p.graph).forEach(p=>{const g=p.graph.all?{nodes:G.nodes.filter(n=>n.line!==2)}:p.graph.plan;if(!g)return;
     const own=g.nodes.filter(n=>STATUS.includes(n.status)&&!n.alias&&!/_\d+$/.test(n.id)).filter(n=>{const k=n.name.toLowerCase();if(seen.has(k))return false;seen.add(k);return true;});
     if(own.length)out.push([p,own]);});
-  return out;}
+  return out.sort((a,b)=>lineOf(a[0])-lineOf(b[0]));}
+const LINE={suprimentos:0,purificacao:1,enriquecimento:2,combustivel:3,reator:4,energia:5,automacao:6,rejeitos:7,seguranca:8};
+const lineOf=p=>p.id in LINE?LINE[p.id]:99;
 function progress(){const topics=topicSteps(),all=topics.flatMap(([,own])=>own);
   return `${bar(all)}<div class="legend">${STATUS.map(s=>{const k=all.filter(n=>n.status===s).length;return k?`<span class="st-${slug(s)}"><i></i>${esc(T(s))}: ${k}</span>`:''}).join('')}<b>${pct(all)}% ${T('do mod no jogo')}</b></div>
   <h4 class="sub-sec">${T('Progresso por tópico')}</h4><div class="per-topic">${topics.map(([p,own])=>`<a href="#/${p.id}"><span class="pt-name">${esc(p.short||p.title)}</span>${bar(own,'bar mini')}<span class="pt-pct">${pct(own)}%</span></a>`).join('')}</div>`;}
@@ -114,7 +122,7 @@ function home(){const h=LANG==='en'&&EN.home?{...W.home,...EN.home}:W.home,meta=
   return `<div class="crumb">${T('Início')}</div><h2 class="title">Immersive Nuclear</h2><p class="lead">${esc(h.lead)}</p>
   <h3 class="sec">${T('Progresso')}</h3><p class="body">${T('Versão')} ${esc(meta.version)} · ${T('próxima')}: ${esc(LANG==='en'?T(meta.next):clean(meta.next))} · ${T('atualizado em')} ${esc(meta.updated)}</p>${progress()}
   <h3 class="sec">${T('O que o mod traz')}</h3><div class="feat">${h.features.map(([t,d])=>`<div><h4>${esc(t)}</h4>${esc(d)}</div>`).join('')}</div>
-  <h3 class="sec">${T('Tópicos')}</h3><div class="kids">${pages.filter(p=>!p.parent&&!p.home).map(p=>`<a href="#/${p.id}">${esc(p.title)}${tagChip(p.tag)}</a>`).join('')}</div>`;}
+  <h3 class="sec">${T('Tópicos')}</h3><div class="kids">${pages.filter(p=>!p.parent&&!p.home).sort((a,b)=>lineOf(a)-lineOf(b)).map(p=>`<a href="#/${p.id}">${esc(p.title)}${tagChip(p.tag)}</a>`).join('')}</div>`;}
 function machine(p){const n=nodeOf(p.machine);
   return `${crumb(p)}<aside class="infobox"><div class="ib-model">${n.model?`<canvas width="520" height="360" aria-label="${T('Modelo 3D. Arraste para girar.')}"></canvas><button class="turn">${T('Girar 90°')}</button>`:n.concept?`<img src="${encodeURI(src(n.concept))}" alt="${T('Conceito')}" ${gone}>`:'<span class="q">⚙</span>'}</div>
     <table><tr><th colspan="2">${esc(p.title)}</th></tr><tr><td>${T('Situação')}</td><td>${statusChip(n.status)}</td></tr>${(p.facts||[]).map(([k,v])=>`<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join('')}</table></aside>
@@ -123,7 +131,7 @@ function machine(p){const n=nodeOf(p.machine);
   <div class="clear"></div><h3 class="sec">${T('Entradas e saídas')}</h3><section id="in-progress" data-manual></section>`;}
 function topic(p){return `${crumb(p)}<h2 class="title">${esc(p.title)}${tagChip(p.tag)}</h2><p class="lead">${esc(p.lead)}</p><section id="in-progress" data-manual></section>${text(p.text)}${refs(p.refs)}`;}
 function catalog(p){return `${crumb(p)}<h2 class="title">${esc(p.title)}</h2><p class="lead">${T('Tudo o que existe ou está previsto, do mesmo banco de dados dos mapas. Valores provisórios até o balanceamento.')}</p>
-  <div class="filters"><input type="search" placeholder="${T('Buscar…')}" aria-label="${T('Buscar no catálogo')}"><span>${['Todos',...STATUS,'IE'].map((s,i)=>`<button data-st="${i?s:''}"${i?'':' class="on"'}>${esc(T(s))}</button>`).join('')}</span></div><div id="cat"></div>`;}
+  <div class="filters"><input type="search" placeholder="${T('Buscar…')}" aria-label="${T('Buscar no catálogo')}"><span>${['Todos',...STATUS].map((s,i)=>`<button data-st="${i?s:''}"${i?'':' class="on"'}>${esc(T(s))}</button>`).join('')}</span></div><div id="cat"></div>`;}
 
 let map=null;
 function render(){const id=(location.hash.match(/^#\/([\w-]+)/)||[])[1]||'inicio',p=pageById.get(id)||pageById.get('inicio'),main=document.querySelector('main');
@@ -135,6 +143,7 @@ function render(){const id=(location.hash.match(/^#\/([\w-]+)/)||[])[1]||'inicio
       intro:T('Passe o mouse para ver a receita; clique para fixar os detalhes.'),lanes:g.lanes,views:[],start:null,height:Math.round(Math.min(630,Math.max(230,g.height*fitZoom+6))),link});}
   if(p.machine){const n=nodeOf(p.machine),cv=main.querySelector('.infobox canvas');if(cv)IN_SPIN_MODEL(cv,n.model,main.querySelector('.turn'));}
   if(g&&!p.home)main.insertAdjacentHTML('beforeend',(p.hazardTable?hazardTable(p.hazardTable):'')+(p.noCards?'':cards(g.nodes))+(p.links||[]).map(([to,t])=>`<p class="body"><a href="#/${to}">${esc(t)} →</a></p>`).join('')+children(p));
+  if(!g&&!p.home&&!p.catalog&&!p.machine)main.insertAdjacentHTML('beforeend',children(p));   // a topic with no chart of its own still lists its pages
   if(p.catalog)catalogFilter(main);
   main.querySelectorAll('.card canvas').forEach(c=>IN_RENDER_MODEL(c,c.dataset.model));
   menu(p);langSwitch();document.querySelector('.menu-btn').textContent='☰ '+T('Tópicos');
@@ -147,8 +156,9 @@ function catalogFilter(main){const out=main.querySelector('#cat'),input=main.que
   const wip=['automacao','modulos','enriquecimento','suprimentos','combustivel','reator'].flatMap(id=>pageById.get(id).graph.plan.nodes)
     .filter(n=>['Em produção','Definido','No jogo','Registrado'].includes(n.status)&&n.id!=='pmod'&&!byId.has(n.id)&&!n.alias)
     .filter(n=>{const k=n.name.toLowerCase();if(seenName.has(k))return false;seenName.add(k);return true;});
-  const draw=()=>{const q=norm(input.value);const list=[...G.nodes,...wip].filter(n=>!ieMachine(n)&&!n.alias&&(!st||n.status===st||(st==='IE'&&n.status==='Vanilla'))&&norm(n.name+' '+n.recipe+' '+n.info).includes(q));
-    out.innerHTML=list.length?cards(list):`<p class="body">${T('Nada encontrado.')}</p>`;out.querySelectorAll('canvas').forEach(c=>IN_RENDER_MODEL(c,c.dataset.model));};
+  const draw=()=>{const q=norm(input.value);const ours=n=>n.status!=='IE'&&n.status!=='Vanilla'&&!/•\s*(IE|Vanilla)$/i.test(n.name);
+    const list=[...G.nodes,...wip].filter(n=>ours(n)&&!ieMachine(n)&&!n.alias&&(!st||n.status===st)&&norm(n.name+' '+n.recipe+' '+n.info).includes(q));
+    out.innerHTML=list.length?cards(list,true):`<p class="body">${T('Nada encontrado.')}</p>`;out.querySelectorAll('canvas').forEach(c=>IN_RENDER_MODEL(c,c.dataset.model));};
   input.oninput=draw;main.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{st=b.dataset.st;main.querySelectorAll('[data-st]').forEach(x=>x.classList.toggle('on',x===b));draw();});draw();}
 
 // ---------- language switch (top right corner) ----------
@@ -177,6 +187,14 @@ function menu(cur){const nav=document.querySelector('nav.side'),root=q=>q.parent
     <div class="side-key">${['No jogo','Previsto','Em aberto'].map(st=>`<span><span class="dot st-${slug(st)}"></span>${esc(T(st))}</span>`).join('')}<span><span class="ico">⚙</span>${T('máquina')}</span><span><span class="ico">◇</span>${T('visão geral')}</span></div>`;
   nav.querySelectorAll('.tog').forEach(b=>b.onclick=()=>{const id=b.dataset.id;opened.has(id)?opened.delete(id):opened.add(id);menu(cur);});}
 document.querySelector('.menu-btn').onclick=()=>document.body.classList.toggle('menu');
+// The side menu's width: drag its right edge (the user: with many topics open it got narrow); kept for the next visit
+(()=>{const layout=document.querySelector('.layout'),grip=document.createElement('div');grip.className='side-grip';grip.title=T('Arraste para ajustar');
+  const setW=w=>{w=Math.max(220,Math.min(560,w));layout.style.setProperty('--side-w',w+'px');try{localStorage.setItem('in-wiki-side',w)}catch(e){}};
+  try{const w=+localStorage.getItem('in-wiki-side');if(w)setW(w);}catch(e){}
+  layout.append(grip);let x0=null,w0=0;
+  grip.onpointerdown=e=>{x0=e.clientX;w0=document.querySelector('nav.side').getBoundingClientRect().width;grip.setPointerCapture(e.pointerId);document.body.classList.add('resizing');};
+  grip.onpointermove=e=>{if(x0!==null)setW(w0+e.clientX-x0);};
+  grip.onpointerup=grip.onpointercancel=()=>{x0=null;document.body.classList.remove('resizing');};})();
 build();
 addEventListener('hashchange',render);render();
 })();

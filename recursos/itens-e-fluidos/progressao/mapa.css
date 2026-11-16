@@ -19,3 +19,8 @@
 #in-progress .in-node[class*=" st-"] .in-frame:after{content:'';position:absolute;top:-6px;left:-6px;width:10px;height:10px;border:2px solid #10170f;background:var(--c,transparent)}
 #in-progress .in-node.st-ie .in-frame:after,#in-progress .in-node.st-vanilla .in-frame:after{display:none}
 .in-craft-title{margin:10px 0 0;color:#d8c48c;font-weight:bold}
+
+/* the item's own picture in its details, as the machines show their model (15/11/2026) */
+#in-detail .in-item{display:flex;justify-content:center;margin:8px 0 4px;padding:10px;background:#1b1c1f;border:1px solid #3a3c40}
+#in-detail .in-item img{width:128px;height:128px;image-rendering:pixelated}
+#in-detail .in-item .in-fluid{display:block;width:128px;height:128px;background-size:128px auto;image-rendering:pixelated}
