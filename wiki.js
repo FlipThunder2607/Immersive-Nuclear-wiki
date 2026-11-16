@@ -103,7 +103,7 @@ const pct=own=>own.length?Math.round(100*own.filter(n=>n.status==='No jogo').len
 // A step that shows up in two topics (the yellowcake, the reactor...) counts once, in the first.
 function topicSteps(){const seen=new Set(),out=[];
   // the purification's chart is the map without the start of line 2 (line:2), which the enrichment's plan counts
-  pages.filter(p=>!p.parent&&!p.home&&p.graph).forEach(p=>{const g=p.graph.all?{nodes:G.nodes.filter(n=>n.line!==2)}:p.graph.plan;if(!g)return;
+  pages.filter(p=>!p.parent&&!p.home&&p.graph&&!p.noProgress).forEach(p=>{const g=p.graph.all?{nodes:G.nodes.filter(n=>n.line!==2)}:p.graph.plan;if(!g)return;
     const own=g.nodes.filter(n=>STATUS.includes(n.status)&&!n.alias&&!/_\d+$/.test(n.id)).filter(n=>{const k=n.name.toLowerCase();if(seen.has(k))return false;seen.add(k);return true;});
     if(own.length)out.push([p,own]);});
   return out.sort((a,b)=>lineOf(a[0])-lineOf(b[0]));}
