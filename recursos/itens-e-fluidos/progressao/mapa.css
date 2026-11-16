@@ -30,3 +30,6 @@
 #in-progress .in-legend [data-st]:hover{text-decoration:underline}
 #in-progress .in-node.hl .in-frame{outline:3px solid #ffffff;outline-offset:3px}
 #in-progress.in-st-focus svg path{opacity:.18}
+
+/* what a machine takes in this chart (the station's jig and modules, 16/11/2026) */
+.in-uses{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 8px}.in-uses span{display:flex;flex-direction:column;align-items:center;width:76px;font-size:10px;line-height:1.25;text-align:center;color:#d8d2c2}.in-uses img{width:32px;height:32px;image-rendering:pixelated;background:#0003;border:1px solid #fff2;margin-bottom:3px}

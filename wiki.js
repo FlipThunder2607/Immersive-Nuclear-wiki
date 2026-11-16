@@ -65,7 +65,7 @@ function around(id){const src=srcOf(id),bi=new Map(src.nodes.map(n=>[n.id,n])),m
     edges.push(dir<0?{a:nid,b:id,type:types.get(nid),via}:{a:id,b:nid,type:types.get(nid),via:via.reverse()});});
   side(ins,130,-1);side(outs,870,1);
   return {meta:G.meta,width:1000,height:H,nodes,edges,lanes:[]};}
-function graphOf(p){const g=p.graph;if(p.machine)return around(p.machine);if(!g||p.noChart)return null;
+function graphOf(p){const g=p.graph;if(p.machine&&!g)return around(p.machine);if(!g||p.noChart)return null;
   // The purification chart: the whole map but the start of line 2 (line:2), which has its own pages
   if(g.all){const keep=new Set(G.nodes.filter(n=>n.line!==2).map(n=>n.id));
     return {...G,height:1420,nodes:G.nodes.filter(n=>keep.has(n.id)),edges:G.edges.filter(e=>keep.has(e.a)&&keep.has(e.b)),lanes:LANES.map(l=>[l[0],T(l[1])]),full:true};}
@@ -176,7 +176,14 @@ function langSwitch(){let box=document.querySelector('.lang');
 // Grouped by 'group' (top-level topics), each topic with its one-line 'desc'; inside a topic the pages are grouped by
 // 'section'. A coloured square tells the status, an icon the kind of page (machine, overview). The current branch opens.
 const TAG_STATUS={'concluída':'No jogo','em produção':'No jogo','em desenvolvimento':'Definido','definido':'Definido','previsto':'Previsto','em aberto':'Em aberto'},opened=new Set();
-const pageStatus=p=>p.machine?nodeOf(p.machine).status:p.tag?TAG_STATUS[p.tag]:p.parent?pageStatus(pageById.get(p.parent)):null;
+// The dot (16/11/2026, the user): the LEAST developed status in the page's chart (green only when all of it works in the
+// game). A topic without a chart sums up its subpages the same way; a page without a progress bar keeps its own tag.
+const RANK=['No jogo','A refazer','Em produção','Registrado','Definido','Previsto','Em aberto'],chartStatus=new Map();
+// except work in progress (purple), which wins over everything
+const sumUp=list=>{list=list.filter(s=>RANK.includes(s));return !list.length?null:list.includes('Em produção')?'Em produção':RANK[Math.max(...list.map(s=>RANK.indexOf(s)))];};
+const bestOf=p=>{if(!chartStatus.has(p.id)){let st=null;if(!p.noProgress){try{const g=p.noChart?null:graphOf(p);if(g)st=sumUp(g.nodes.map(n=>n.status));}catch(e){}
+    if(st===null)st=sumUp(pages.filter(q=>q.parent===p.id).map(q=>pageStatus(q)));}chartStatus.set(p.id,st);}return chartStatus.get(p.id);};
+const pageStatus=p=>p.status?p.status:bestOf(p)||(p.machine?nodeOf(p.machine).status:null)||(p.tag?TAG_STATUS[p.tag]:p.parent?pageStatus(pageById.get(p.parent)):null);
 const dot=p=>{const st=pageStatus(p);return st?`<span class="dot st-${slug(st)}" title="${esc(T(st))}"></span>`:'';};
 const label=p=>esc(p.short||p.title);
 function menu(cur){const nav=document.querySelector('nav.side'),root=q=>q.parent?root(pageById.get(q.parent)):q;if(cur&&cur.id!==menu.last){opened.add(root(cur).id);menu.last=cur.id;}
