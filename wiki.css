@@ -161,3 +161,17 @@ h4.sub-sec{color:var(--soft);margin:14px 0 6px;font-size:12px;font-weight:bold;t
 .lang button.on{color:#1a1b1d;background:var(--gold)}
 .lang button:not(.on):hover{background:var(--hover);color:var(--ink)}
 @media (max-width:640px){.per-topic a{grid-template-columns:110px 1fr 36px}.lang{top:8px;right:8px}}
+
+/* colour key with meanings (sidebar and home) */
+nav.side .side-key.full{flex-direction:column;flex-wrap:nowrap;gap:5px}
+nav.side .side-key.full>b{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim)}
+.sk{display:flex;align-items:flex-start;gap:7px}
+.sk .dot{margin-top:4px;flex:none}
+.sk b{display:block;font-weight:600}
+.sk small{display:block;opacity:.8}
+nav.side .side-key .kinds{display:flex;gap:12px;margin-top:4px}
+nav.side .side-key .kinds>span{display:flex;align-items:center;gap:5px}
+.status-key{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px 18px;margin:6px 0 4px}
+.status-key .sk{font-size:13px}
+.status-key .sk small{font-size:12px}
+.status-key .dot{width:11px;height:11px;background:var(--c);border:1px solid var(--line)}

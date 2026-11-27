@@ -88,7 +88,7 @@ function icon(n){if(n.model)return `<canvas width="120" height="80" data-model="
   if(n.img||n.concept)return `<img src="${encodeURI(src(n.img||n.concept))}" alt="" ${gone}>`;return `<span class="q">${n.glyph?esc(n.glyph):n.kind==='machine'?'⚙':'?'}</span>`;}
 // The first sentence of a text (the catalog's machines: one short line each, the user 15/11/2026)
 const firstSentence=t=>{const s=String(t||'').trim(),m=s.match(/^.*?[.!?](\s|$)/);return m?m[0].trim():s;};
-function card(n,short){const page=n.kind==='machine'&&machinePage.get(n.id),tag=page?'a':'div';
+function card(n,short){const page=(n.page&&pageById.get(n.page))||(n.kind==='machine'&&machinePage.get(n.id)),tag=page?'a':'div';
   if(short&&n.kind==='machine')return `<${tag} class="card${page?' link':''}"${page?` href="#/${page.id}"`:''}><span class="ic">${icon(n)}</span><div><h4>${esc(n.name)}</h4>${statusChip(n.status)}<p>${esc(firstSentence(page&&page.lead||n.info||n.recipe))}</p></div></${tag}>`;
   return `<${tag} class="card${page?' link':''}"${page?` href="#/${page.id}"`:''}><span class="ic">${icon(n)}</span><div><h4>${esc(n.name)}</h4>${statusChip(n.status)}<p>${esc(n.recipe)}</p>${n.info&&n.info!==n.recipe?`<p class="more">${esc(n.info)}</p>`:''}</div></${tag}>`;}
 // IE machines (and our recipes run in them, named "... • IE") only show in the organograms, never as cards or in the catalog
@@ -119,13 +119,17 @@ function progress(){const topics=topicSteps(),all=topics.flatMap(([,own])=>own);
 const crumb=p=>{const path=[];for(let q=p;q;q=q.parent&&pageById.get(q.parent))path.unshift(q);return `<div class="crumb"><a href="#/inicio">${T('Início')}</a>${path.filter(q=>!q.home).map((q,i,a)=>' › '+(i<a.length-1?`<a href="#/${q.id}">${esc(q.title)}</a>`:esc(q.title))).join('')}</div>`;};
 const text=list=>(list||[]).map(([h,t])=>`<h3 class="sec">${esc(h)}</h3><p class="body">${esc(t)}</p>`).join('');
 const refs=list=>(list||[]).map(([h,t,links])=>`<h3 class="sec">${esc(h)}</h3><p class="body">${esc(t)}</p>${links.map(([l,url])=>`<p class="body"><a href="${encodeURI(url)}" target="_blank" rel="noopener">${esc(l)} ↗</a></p>`).join('')}`).join('');
+const alsoUsed=p=>p.alsoUsed&&p.alsoUsed.length?`<h3 class="sec">${T('Também usada em')}</h3><div class="kids">${p.alsoUsed.map(([to,t])=>`<a href="#/${to}">${esc(t)}</a>`).join('')}</div>`:'';
 const children=p=>{const kids=pages.filter(q=>q.parent===p.id);return kids.length?`<h3 class="sec">${T('Nesta seção')}</h3><div class="kids">${kids.map(k=>`<a href="#/${k.id}">${esc(k.title)}${tagChip(k.tag)}</a>`).join('')}</div>`:'';};
 
+// The colour key with what each status means (sidebar and home page)
+const statusKey=()=>STATUS.map(st=>`<div class="sk"><span class="dot st-${slug(st)}"></span><span><b>${esc(T(st))}</b><small>${esc(T(MEANING[st]))}</small></span></div>`).join('');
 // ---------- pages ----------
 function home(){const h=LANG==='en'&&EN.home?{...W.home,...EN.home}:W.home,meta=G.meta||{};
   return `<div class="crumb">${T('Início')}</div><h2 class="title">Immersive Nuclear</h2><p class="lead">${esc(h.lead)}</p>
   <h3 class="sec">${T('Progresso')}</h3><p class="body">${T('Versão')} ${esc(meta.version)} · ${T('próxima')}: ${esc(LANG==='en'?T(meta.next):clean(meta.next))} · ${T('atualizado em')} ${esc(meta.updated)}</p>${progress()}
   <h3 class="sec">${T('O que o mod traz')}</h3><div class="feat">${h.features.map(([t,d])=>`<div><h4>${esc(t)}</h4>${esc(d)}</div>`).join('')}</div>
+  <h3 class="sec">${T('Legenda das cores')}</h3><div class="status-key">${statusKey()}</div>
   <h3 class="sec">${T('Tópicos')}</h3><div class="kids">${pages.filter(p=>!p.parent&&!p.home).sort((a,b)=>lineOf(a)-lineOf(b)).map(p=>`<a href="#/${p.id}">${esc(p.title)}${tagChip(p.tag)}</a>`).join('')}</div>`;}
 function machine(p){const n=nodeOf(p.machine);
   return `${crumb(p)}<aside class="infobox"><div class="ib-model">${n.model?`<canvas width="520" height="360" aria-label="${T('Modelo 3D. Arraste para girar.')}"></canvas><button class="turn">${T('Girar 90°')}</button>`:n.concept?`<img src="${encodeURI(src(n.concept))}" alt="${T('Conceito')}" ${gone}>`:'<span class="q">⚙</span>'}</div>
@@ -142,11 +146,11 @@ function render(){const id=(location.hash.match(/^#\/([\w-]+)/)||[])[1]||'inicio
   if(map){map.destroy();map=null;}
   main.innerHTML=p.home?home():p.catalog?catalog(p):p.machine?machine(p):topic(p);
   const g=graphOf(p),host=main.querySelector('#in-progress');
-  if(g&&host){const fitZoom=Math.min(1,(host.clientWidth-8)/g.width),link=n=>n.kind==='machine'&&machinePage.get(n.id)&&machinePage.get(n.id)!==p?'#/'+machinePage.get(n.id).id:null;
+  if(g&&host){const fitZoom=Math.min(1,(host.clientWidth-8)/g.width),link=n=>n.page&&n.page!==p.id?'#/'+n.page:n.kind==='machine'&&machinePage.get(n.id)&&machinePage.get(n.id)!==p?'#/'+machinePage.get(n.id).id:null;
     map=IN_MAP_MOUNT(host,g,g.full?{base:BASE,catalog:CATALOG,t:T,title:T('Organograma da purificação'),intro:T('Explore os processos do Immersive Nuclear. Passe o mouse para ver a receita; clique para fixar os detalhes.'),lanes:g.lanes,views:VIEWS.map(v=>({...v,label:T(v.label)})),link}:{base:BASE,catalog:CATALOG,t:T,title:T(p.machine?'Entradas e saídas':'Organograma'),
       intro:T('Passe o mouse para ver a receita; clique para fixar os detalhes.'),lanes:g.lanes,views:[],start:null,height:Math.round(Math.min(630,Math.max(230,g.height*fitZoom+6))),link});}
   if(p.machine){const n=nodeOf(p.machine),cv=main.querySelector('.infobox canvas');if(cv)IN_SPIN_MODEL(cv,n.model,main.querySelector('.turn'));}
-  if(g&&!p.home)main.insertAdjacentHTML('beforeend',(p.hazardTable?hazardTable(p.hazardTable):'')+(p.noCards?'':cards(g.nodes))+(p.links||[]).map(([to,t])=>`<p class="body"><a href="#/${to}">${esc(t)} →</a></p>`).join('')+children(p));
+  if(g&&!p.home)main.insertAdjacentHTML('beforeend',(p.hazardTable?hazardTable(p.hazardTable):'')+(p.noCards?'':cards(g.nodes))+(p.links||[]).map(([to,t])=>`<p class="body"><a href="#/${to}">${esc(t)} →</a></p>`).join('')+alsoUsed(p)+children(p));
   if(!g&&!p.home&&!p.catalog&&!p.machine)main.insertAdjacentHTML('beforeend',children(p));   // a topic with no chart of its own still lists its pages
   if(p.catalog)catalogFilter(main);
   main.querySelectorAll('.card canvas').forEach(c=>IN_RENDER_MODEL(c,c.dataset.model));
@@ -195,7 +199,7 @@ function menu(cur){const nav=document.querySelector('nav.side'),root=q=>q.parent
   nav.innerHTML=`<a class="brand" href="#/inicio"><h1>Immersive Nuclear</h1></a><div class="ver">${T('Addon do Immersive Engineering')} · ${esc(G.meta.version)}</div>
     <a class="home${cur&&cur.home?' on':''}" href="#/inicio"><span class="ico">⌂</span>${T('Início')}</a>
     ${groups.map(g=>`<div class="grp">${esc(T(g))}</div>${pages.filter(q=>q.group===g).map(topic).join('')}`).join('')}
-    <div class="side-key">${STATUS.map(st=>`<span title="${esc(T(MEANING[st]))}"><span class="dot st-${slug(st)}"></span>${esc(T(st))}</span>`).join('')}<span><span class="ico">⚙</span>${T('máquina')}</span><span><span class="ico">◇</span>${T('visão geral')}</span></div>`;
+    <div class="side-key full"><b>${T('Legenda das cores')}</b>${statusKey()}<div class="kinds"><span><span class="ico">⚙</span>${T('máquina')}</span><span><span class="ico">◇</span>${T('visão geral')}</span></div></div>`;
   nav.querySelectorAll('.tog').forEach(b=>b.onclick=()=>{const id=b.dataset.id;opened.has(id)?opened.delete(id):opened.add(id);menu(cur);});}
 document.querySelector('.menu-btn').onclick=()=>document.body.classList.toggle('menu');
 // The side menu's width: drag its right edge (the user: with many topics open it got narrow); kept for the next visit
