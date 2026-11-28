@@ -16,7 +16,7 @@ function loadModel(id){if(!textures.has(id)){const m=IN_MODELS[id];textures.set(
 // ones not ready yet waits in a queue and is done in slices of a few milliseconds per frame, so a page shows at once,
 // the menu and the links answer at once, and the models come in after it.
 const shots=new Map(),queue=[];let pumping=false;
-const shotKey=(id,W,H,yaw)=>'inm|'+id+'|'+(IN_MODELS[id].quads.length)+'|'+W+'x'+H+'|'+yaw.toFixed(3);
+const shotKey=(id,W,H,yaw)=>'inm3|'+id+'|'+(IN_MODELS[id].quads.length)+'|'+W+'x'+H+'|'+yaw.toFixed(3);
 function paint(canvas,pic){const ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(pic,0,0);canvas.dataset.rendered='true';}
 function pump(){if(pumping||!queue.length)return;pumping=true;requestAnimationFrame(()=>{pumping=false;const job=queue[0];let done=true;try{done=job();}catch(e){done=true;}if(done)queue.shift();pump();});}
 // drawModel returns step(ms): draws the next faces for about that long and answers whether the picture is finished
